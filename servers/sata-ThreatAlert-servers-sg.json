@@ -1,0 +1,644 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "stackArmor Threat Alert - template to launch Threat Alert Servers.",
+
+  "Parameters" : {
+    "VPCSelection": {
+        "Description": "VPC ID for Threat Alert",
+        "Type": "AWS::EC2::VPC::Id",
+        "Default": "vpc-74a98a0f"
+        },
+    "ThreatAlertSubnet" : {
+        "Description": "Subnet used by all three servers",
+        "Type" : "AWS::EC2::Subnet::Id",
+        "Default":"subnet-0111d666"
+        },
+    "InstanceTypeAwsScanner":{
+        "Description":"Webserver EC2 Instance Type",
+        "Type" : "String",
+        "Default" : "m5.large",
+        "AllowedValues" : [ "m3.large", "m3.xlarge", "m3.2xlarge", "m4.large", "m4.xlarge", "m4.2xlarge", "m4.4xlarge", "m4.10xlarge", "m5.large"]
+    ,
+        "ConstraintDescription" : "must be a valid EC2 instance type."
+        },
+    "InstanceTypeAnchoreServer":{
+        "Description":"Webserver EC2 Instance Type",
+        "Type" : "String",
+        "Default" : "m5.large",
+        "AllowedValues" : [ "m3.large", "m3.xlarge", "m3.2xlarge", "m4.large", "m4.xlarge", "m4.2xlarge", "m4.4xlarge", "m4.10xlarge", "m5.large"]
+    ,
+        "ConstraintDescription" : "must be a valid EC2 instance type."
+        },
+    "InstanceTypeSplunkServer":{
+        "Description":"Webserver EC2 Instance Type",
+        "Type" : "String",
+        "Default" : "m5.large",
+        "AllowedValues" : [ "m3.large", "m3.xlarge", "m3.2xlarge", "m4.large", "m4.xlarge", "m4.2xlarge", "m4.4xlarge", "m4.10xlarge", "m5.large"]
+    ,
+        "ConstraintDescription" : "must be a valid EC2 instance type."
+        },
+    "KeyName": {
+        "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+        "Type": "AWS::EC2::KeyPair::KeyName",
+        "ConstraintDescription" : "must be the name of an existing EC2 KeyPair.",
+        "Default": "threatalert-dev-kp"
+        },
+    "AwsAccountID":{
+        "Type" : "String",
+        "Description" : " AWS User ID",
+        "MinLength"   : "1",
+        "MaxLength"   : "41",
+        
+        "ConstraintDescription" : "must contain numbers."
+        },
+    "AnchoreAMI":{
+        "Description": "AMI to be used for Anchore Instances",
+        "Type": "String",
+        "Default" : "ami-2e522251"
+        },
+    "AwsScannerAMI":{
+        "Description": "AMI to be used for AwsScanner Instances",
+        "Type": "String",
+        "Default" : "ami-151f6d6a"
+        },
+    "SplunkAMI":{
+        "Description": "AMI to be used for AwsScanner Instances",
+        "Type": "String",
+        "Default" : "ami-04d2a17b"
+        }
+
+    
+    },
+    
+
+  "Mappings" : {
+
+    "AWSInstanceType2Arch" : {
+      "m1.small"    : { "Arch" : "PV64"   },
+      "m1.medium"   : { "Arch" : "PV64"   },
+      "m1.large"    : { "Arch" : "PV64"   },
+      "m1.xlarge"   : { "Arch" : "PV64"   },
+      "m2.xlarge"   : { "Arch" : "PV64"   },
+      "m2.2xlarge"  : { "Arch" : "PV64"   },
+      "m2.4xlarge"  : { "Arch" : "PV64"   },
+      "m3.medium"   : { "Arch" : "HVM64"  },
+      "m3.large"    : { "Arch" : "HVM64"  },
+      "m3.xlarge"   : { "Arch" : "HVM64"  },
+      "m3.2xlarge"  : { "Arch" : "HVM64"  },
+      "m4.large"    : { "Arch" : "HVM64"  },
+      "m4.xlarge"   : { "Arch" : "HVM64"  },
+      "m4.2xlarge"  : { "Arch" : "HVM64"  },
+      "m4.4xlarge"  : { "Arch" : "HVM64"  },
+      "m4.10xlarge" : { "Arch" : "HVM64"  },
+      "c1.medium"   : { "Arch" : "PV64"   },
+      "c1.xlarge"   : { "Arch" : "PV64"   },
+      "c3.large"    : { "Arch" : "HVM64"  },
+      "c3.xlarge"   : { "Arch" : "HVM64"  },
+      "c3.2xlarge"  : { "Arch" : "HVM64"  },
+      "c3.4xlarge"  : { "Arch" : "HVM64"  },
+      "c3.8xlarge"  : { "Arch" : "HVM64"  },
+      "c4.large"    : { "Arch" : "HVM64"  },
+      "c4.xlarge"   : { "Arch" : "HVM64"  },
+      "c4.2xlarge"  : { "Arch" : "HVM64"  },
+      "c4.4xlarge"  : { "Arch" : "HVM64"  },
+      "c4.8xlarge"  : { "Arch" : "HVM64"  },
+      "g2.2xlarge"  : { "Arch" : "HVMG2"  },
+      "g2.8xlarge"  : { "Arch" : "HVMG2"  },
+      "r3.large"    : { "Arch" : "HVM64"  },
+      "r3.xlarge"   : { "Arch" : "HVM64"  },
+      "r3.2xlarge"  : { "Arch" : "HVM64"  },
+      "r3.4xlarge"  : { "Arch" : "HVM64"  },
+      "r3.8xlarge"  : { "Arch" : "HVM64"  },
+      "i2.xlarge"   : { "Arch" : "HVM64"  },
+      "i2.2xlarge"  : { "Arch" : "HVM64"  },
+      "i2.4xlarge"  : { "Arch" : "HVM64"  },
+      "i2.8xlarge"  : { "Arch" : "HVM64"  },
+      "d2.xlarge"   : { "Arch" : "HVM64"  },
+      "d2.2xlarge"  : { "Arch" : "HVM64"  },
+      "d2.4xlarge"  : { "Arch" : "HVM64"  },
+      "d2.8xlarge"  : { "Arch" : "HVM64"  },
+      "hi1.4xlarge" : { "Arch" : "HVM64"  },
+      "hs1.8xlarge" : { "Arch" : "HVM64"  },
+      "cr1.8xlarge" : { "Arch" : "HVM64"  },
+      "cc2.8xlarge" : { "Arch" : "HVM64"  }
+    },
+    "Region2Principal" : {
+      "us-east-1": {
+        "EC2Principal": "ec2.amazonaws.com",
+        "OpsWorksPrincipal": "opsworks.amazonaws.com"
+      },
+      "us-west-2": {
+        "EC2Principal": "ec2.amazonaws.com",
+        "OpsWorksPrincipal": "opsworks.amazonaws.com"
+      },
+      "us-west-1": {
+        "EC2Principal": "ec2.amazonaws.com",
+        "OpsWorksPrincipal": "opsworks.amazonaws.com"
+      }
+    }
+    },
+
+"Resources": {
+    "sataAnchoreSG":{
+        "Type": "AWS::EC2::SecurityGroup",
+       
+        
+        "Properties":{
+            "VpcId": {"Ref":"VPCSelection"},
+            "GroupDescription" : "Anchore Base Security Group",
+            "SecurityGroupIngress":{
+                "IpProtocol":"tcp",
+                "FromPort":"22",
+                "ToPort":"22",
+                "CidrIp" : "0.0.0.0/0"
+                
+                }
+            }
+             
+        
+        },
+    "sataAwsscannerSG":{
+        "Type": "AWS::EC2::SecurityGroup",
+        
+        
+        "Properties":{
+            "GroupDescription" : "AwsScanner Base Security Group",
+            "VpcId": {"Ref":"VPCSelection"},
+            "SecurityGroupIngress":[      
+                {
+                 "IpProtocol":"tcp",
+                 "CidrIp":"0.0.0.0/0",
+                 "FromPort": "22",
+                 "ToPort":"22"
+                 },
+                 {
+                 
+                 "IpProtocol":"tcp",
+                 "CidrIp":"0.0.0.0/0",
+                 "FromPort": "443",
+                 "ToPort":"443"
+                 }
+             ]
+        }
+        
+        },
+    
+        
+    "sataSplunkSG":{
+        "Type": "AWS::EC2::SecurityGroup",
+        
+        
+        "Properties":{
+            "GroupDescription" : "Splunk Base Security Group",
+            "VpcId": {"Ref":"VPCSelection"},
+            "SecurityGroupIngress":[
+                {
+                 "IpProtocol":"tcp",
+                 "CidrIp":"0.0.0.0/0",
+                 "FromPort": "22",
+                 "ToPort":"22"
+                 },
+                 {
+         
+                 "IpProtocol":"tcp",
+                 "CidrIp":"0.0.0.0/0",
+                 "FromPort": "8000",
+                 "ToPort":"8000"
+                 },
+                 {
+         
+                 "IpProtocol":"tcp",
+                 "CidrIp":"0.0.0.0/0",
+                 "FromPort": "9443",
+                 "ToPort":"9443"
+                 }
+             ]       
+         }
+        },
+       
+    
+    
+
+    "sataAnchoreEC2Role" : {
+        "Type" : "AWS::IAM::Role",
+        "Properties": {
+            "Path": "/",
+            "RoleName": "sataAnchoreEC2Role",
+            
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Service": "ec2.amazonaws.com"
+                  },
+                  "Action": "sts:AssumeRole"
+                }
+              ]
+            },
+            "ManagedPolicyArns": ["arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly","arn:aws:iam::aws:policy/AmazonSSMFullAccess"]
+                                
+         
+          }
+    
+        },
+    
+    "sataAwsscannerAppRole":{
+        "Type" : "AWS::IAM::Role",
+        "Properties":{
+            "Path":"/",
+            "RoleName" : "sataAwsscannerAppRole",
+            
+            "AssumeRolePolicyDocument":{
+               "Version":"2012-10-17",
+                "Statement": [{
+                    "Effect" : "Allow",
+                    "Principal": {
+                        "Service": ["ec2.amazonaws.com"]
+                    },
+                                        
+                    "Action":["sts:AssumeRole"]
+                    } ]
+                },
+            
+            "Policies":[{
+                "PolicyName" : "sata-awsscanner-app-policy",
+                "PolicyDocument":{
+                    "Version":"2012-10-17",
+                    "Statement":[{
+                        "Action": [
+                            "acm:describecertificate",
+                            "acm:listcertificates",
+                            "cloudtrail:DescribeTrails",
+                            "cloudtrail:GetTrailStatus",
+                            "cloudtrail:LookupEvents",
+                            "config:describeconfigrules",
+                            "config:describeconfigurationrecorders",
+                            "directconnect:describeconnections",
+                            "ec2:describeaddresses",
+                            "ec2:describedhcpoptions",
+                            "ec2:describeflowlogs",
+                            "ec2:describeimages",
+                            "ec2:describeinstances",
+                            "ec2:describeinternetgateways",
+                            "ec2:describekeypairs",
+                            "ec2:describenatgateways",
+                            "ec2:describenetworkacls",
+                            "ec2:describenetworkinterfaces",
+                            "ec2:describeregions",
+                            "ec2:describeroutetables",
+                            "ec2:describesecuritygroups",
+                            "ec2:describesnapshots",
+                            "ec2:DescribeSnapshotAttribute",
+                            "ec2:describesubnets",
+                            "ec2:describetags",
+                            "ec2:describevolumes",
+                            "ec2:describevpcendpoints",
+                            "ec2:describevpcpeeringconnections",
+                            "ec2:describevpcs",
+                            "ec2:describevpnconnections",
+                            "ec2:describevpngateways",
+                            "elasticloadbalancing:describeloadbalancerattributes",
+                            "elasticloadbalancing:describeloadbalancerpolicies",
+                            "elasticloadbalancing:describeloadbalancers",
+                            "elasticloadbalancing:describelisteners",
+                            "elasticloadbalancing:describerules",
+                            "elasticloadbalancing:describesslpolicies",
+                            "elasticloadbalancing:describetags",
+                            "elasticloadbalancing:describetargetgroups",
+                            "elasticloadbalancing:describetargetgroupattributes",
+                            "elasticloadbalancing:describetargethealth",
+                            "es:describeelasticsearchdomainconfig",
+                            "es:listdomainnames",
+                            "glacier:DescribeVault",
+                            "glacier:GetVaultAccessPolicy",
+                            "glacier:ListTagsForVault",
+                            "glacier:ListVaults",
+                            "iam:GetAccountPasswordPolicy",
+                            "iam:getaccesskeylastused",
+                            "iam:getgroup",
+                            "iam:getgrouppolicy",
+                            "iam:getloginprofile",
+                            "iam:getpolicyversion",
+                            "iam:getrole",
+                            "iam:getrolepolicy",
+                            "iam:GetSAMLProvider",
+                            "iam:getservercertificate",
+                            "iam:getuser",
+                            "iam:getuserpolicy",
+                            "iam:listaccesskeys",
+                            "iam:listattachedgrouppolicies",
+                            "iam:listattachedrolepolicies",
+                            "iam:listattacheduserpolicies",
+                            "iam:listentitiesforpolicy",
+                            "iam:listgrouppolicies",
+                            "iam:listgroups",
+                            "iam:listinstanceprofilesforrole",
+                            "iam:listmfadevices",
+                            "iam:listpolicies",
+                            "iam:listrolepolicies",
+                            "iam:listroles",
+                            "iam:listsamlproviders",
+                            "iam:listservercertificates",
+                            "iam:listsigningcertificates",
+                            "iam:listuserpolicies",
+                            "iam:listusers",
+                            "kms:describekey",
+                            "kms:getkeypolicy",
+                            "kms:getkeyrotationstatus",
+                            "kms:listaliases",
+                            "kms:listgrants",
+                            "kms:listkeypolicies",
+                            "kms:listkeys",
+                            "lambda:getfunctionconfiguration",
+                            "lambda:getpolicy",
+                            "lambda:listaliases",
+                            "lambda:listeventsourcemappings",
+                            "lambda:listtags",
+                            "lambda:listversionsbyfunction",
+                            "lambda:listfunctions",
+                            "rds:describedbclusters",
+                            "rds:describedbclustersnapshots",
+                            "rds:describedbinstances",
+                            "rds:describedbsecuritygroups",
+                            "rds:describedbsnapshots",
+                            "rds:describedbsnapshotattributes",
+                            "rds:describedbsubnetgroups",
+                            "redshift:describeclusters",
+                            "route53:listhostedzones",
+                            "route53:listresourcerecordsets",
+                            "route53domains:listdomains",
+                            "route53domains:getdomaindetail",
+                            "s3:getaccelerateconfiguration",
+                            "s3:getbucketacl",
+                            "s3:getbucketcors",
+                            "s3:getbucketlocation",
+                            "s3:getbucketlogging",
+                            "s3:getbucketnotification",
+                            "s3:getbucketpolicy",
+                            "s3:getbuckettagging",
+                            "s3:getbucketversioning",
+                            "s3:getbucketwebsite",
+                            "s3:getlifecycleconfiguration",
+                            "s3:listbucket",
+                            "s3:listallmybuckets",
+                            "s3:getreplicationconfiguration",
+                            "s3:getanalyticsconfiguration",
+                            "s3:getmetricsconfiguration",
+                            "s3:getinventoryconfiguration",
+                            "ses:getidentityverificationattributes",
+                            "ses:listidentities",
+                            "ses:listverifiedemailaddresses",
+                            "ses:sendemail",
+                            "sns:gettopicattributes",
+                            "sns:listsubscriptionsbytopic",
+                            "sns:listtopics",
+                            "sqs:getqueueattributes",
+                            "sqs:listqueues"
+                        ],
+                        "Effect": "Allow",
+                        "Resource": "*"
+                    }]
+                }
+            }]
+        }
+    },
+
+    "sataAwsscannerEC2Role" : {
+        "Type": "AWS::IAM::Role",
+        "Properties": {
+            "Path": "/",
+            "RoleName": "sataAwsscannerEC2Role",
+            "ManagedPolicyArns": [ "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM" ],
+            
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                    "Effect":"Allow",
+                    "Principal": {
+                        "Service": ["ec2.amazonaws.com"]
+                    
+                      },
+                    "Action":["sts:AssumeRole"]
+                }]
+            },
+            "Policies":[{
+                "PolicyName":"sata-aws-scanner-ec2-policy",
+                "PolicyDocument":{
+                    "Version":"2012-10-17",
+                    "Statement":[
+                        {
+                            "Effect": "Allow",
+                            "Action": "ses:SendEmail",
+                            "Resource": "*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": "sts:AssumeRole",
+                            "Resource": "arn:aws:iam::*:role/sataAwsscannerAppRole"
+                        }
+                    ]
+                }
+                    
+            }]
+            
+            
+        }
+    
+    },
+
+    "sataSplunkEC2Role":{
+        "Type": "AWS::IAM::Role",
+        "Properties": {
+            "Path": "/",
+            "RoleName": "sataSplunkEC2Role",
+    
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                    "Effect":"Allow",
+                    "Principal": {
+                        "Service":[ "ec2.amazonaws.com"]
+                       
+                      },
+                    
+                    "Action":["sts:AssumeRole"]
+                    
+                    }]
+                
+                },
+                "ManagedPolicyArns": [ "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM" ],
+            "Policies":[{
+                "PolicyName":"sata-splunk-ec2-policy",
+                "PolicyDocument":{
+                    "Version":"2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "sqs:GetQueueAttributes",
+                                "sqs:ListQueues",
+                                "sqs:ReceiveMessage",
+                                "sqs:GetQueueUrl",
+                                "sqs:SendMessage",
+                                "sqs:DeleteMessage",
+                                "s3:ListBucket",
+                                "s3:GetObject",
+                                "s3:GetBucketLocation",
+                                "s3:ListAllMyBuckets",
+                                "s3:GetBucketTagging",
+                                "s3:GetAccelerateConfiguration",
+                                "s3:GetBucketLogging",
+                                "s3:GetLifecycleConfiguration",
+                                "s3:GetBucketCORS",
+                                "config:DeliverConfigSnapshot",
+                                "config:DescribeConfigRules",
+                                "config:DescribeConfigRuleEvaluationStatus",
+                                "config:GetComplianceDetailsByConfigRule",
+                                "config:GetComplianceSummaryByConfigRule",
+                                "iam:GetUser",
+                                "iam:ListUsers",
+                                "iam:GetAccountPasswordPolicy",
+                                "iam:ListAccessKeys",
+                                "iam:GetAccessKeyLastUsed",
+                                "autoscaling:Describe*",
+                                "cloudwatch:Describe*",
+                                "cloudwatch:Get*",
+                                "cloudwatch:List*",
+                                "sns:Get*",
+                                "sns:List*",
+                                "sns:Publish",
+                                "logs:DescribeLogGroups",
+                                "logs:DescribeLogStreams",
+                                "logs:GetLogEvents",
+                                "ec2:DescribeInstances",
+                                "ec2:DescribeReservedInstances",
+                                "ec2:DescribeSnapshots",
+                                "ec2:DescribeRegions",
+                                "ec2:DescribeKeyPairs",
+                                "ec2:DescribeNetworkAcls",
+                                "ec2:DescribeSecurityGroups",
+                                "ec2:DescribeSubnets",
+                                "ec2:DescribeVolumes",
+                                "ec2:DescribeVpcs",
+                                "ec2:DescribeImages",
+                                "ec2:DescribeAddresses",
+                                "lambda:ListFunctions",
+                                "rds:DescribeDBInstances",
+                                "cloudfront:ListDistributions",
+                                "elasticloadbalancing:DescribeLoadBalancers",
+                                "elasticloadbalancing:DescribeInstanceHealth",
+                                "elasticloadbalancing:DescribeTags",
+                                "elasticloadbalancing:DescribeTargetGroups",
+                                "elasticloadbalancing:DescribeTargetHealth",
+                                "elasticloadbalancing:DescribeListeners",
+                                "inspector:Describe*",
+                                "inspector:List*",
+                                "kinesis:Get*",
+                                "kinesis:DescribeStream",
+                                "kinesis:ListStreams",
+                                "kms:Decrypt",
+                                "sts:AssumeRole"
+                            ],
+                            "Resource": [
+                                "*"
+                            ]
+                        
+                    }]
+            }
+        }]
+            
+    }
+    
+},
+
+    "SataAnchoreInstanceProfile":{
+        "Type": "AWS::IAM::InstanceProfile",
+        "Properties": {
+        "Path": "/",
+        "Roles": [ { "Ref": "sataAnchoreEC2Role" } ]
+      }
+    },
+
+    "SataSplunkInstanceProfile":{
+        "Type": "AWS::IAM::InstanceProfile",
+        "Properties": {
+        "Path": "/",
+        "Roles": [ { "Ref": "sataSplunkEC2Role" } ]
+      }
+    },
+    
+    "SataAwsscannerEC2Profile":{
+        "Type": "AWS::IAM::InstanceProfile",
+        "Properties": {
+        "Path": "/",
+        "Roles": [ { "Ref": "sataAwsscannerEC2Role" } ]
+      }
+    },
+
+    
+
+    "sataAnchoreServer": {
+        "Type": "AWS::EC2::Instance",
+        "Properties": {
+          "ImageId" : { "Ref" : "AnchoreAMI"},
+          "IamInstanceProfile" : {"Ref":"SataAnchoreInstanceProfile"},
+          "SecurityGroupIds" : [{"Ref" : "sataAnchoreSG"}],
+          "InstanceType" : {"Ref":"InstanceTypeAnchoreServer"},
+
+          "Tags": [
+            {"Key" : "Name", "Value" : "sata-anchore-server"}
+          ],
+          "SubnetId": { "Ref": "ThreatAlertSubnet" }
+          
+          
+        },
+        "DependsOn" : ["sataAnchoreSG"]
+      },
+
+    "sataAwsscannerServer" : {
+        "Type": "AWS::EC2::Instance",
+        "Properties": {
+          "ImageId" : { "Ref" : "AwsScannerAMI"},
+          "IamInstanceProfile" : {"Ref":"SataAwsscannerEC2Profile"},
+          "InstanceType" : {"Ref":"InstanceTypeAwsScanner"},
+          "SecurityGroupIds" : [{"Ref" : "sataAwsscannerSG"}],
+          "Tags": [
+            {"Key" : "Name", "Value" : "sata-awsscanner-server"}
+          ],
+          "SubnetId": { "Ref": "ThreatAlertSubnet" }
+        }
+            },
+
+    "sataSplunkServer" : {
+        "Type": "AWS::EC2::Instance",
+        "Properties": {
+          "ImageId" : { "Ref" : "SplunkAMI"},
+          "IamInstanceProfile" : {"Ref":"SataSplunkInstanceProfile"},
+          "InstanceType":{"Ref":"InstanceTypeSplunkServer"},
+          "SecurityGroupIds" : [{"Ref" : "sataSplunkSG"}],
+          "Tags": [
+            {"Key" : "Name", "Value" : "sata-splunk-server"}
+          ],
+          "SubnetId": { "Ref": "ThreatAlertSubnet" }
+        }
+        
+    
+    }
+
+    
+
+    
+},
+  "Outputs": {
+    "CustomVPCWebsiteURL": {
+      "Description": "URL for Threat Alert",
+      "Value": "Threat Alert"
+
+    }
+  }
+}

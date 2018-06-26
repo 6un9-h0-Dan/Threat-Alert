@@ -1,0 +1,373 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "stackArmor Threat Alert - template to launch Threat Alert Servers.",
+
+  "Parameters" : {
+
+    "VPCSelection": {
+      "Description": "VPC ID for Threat Alert",
+      "Type": "List<AWS::EC2::VPC::Id>",
+      "Default": ""
+    },
+    "ThreatAlertAMI": {
+      "Description": "AMI ID of Threat Alert",
+      "Type": "AWS::EC2::Image::Id",
+      "Default": "ami-e7ca4298"
+    },
+    "AnchoreAMI": {
+      "Description": "AMI ID of Threat Alert Anchore Server",
+      "Type": "AWS::EC2::Image::Id",
+      "Default": "ami-341f934b"
+    },
+    "ThreatAlertInstanceType" : {
+      "Description" : "WebServer EC2 instance type",
+      "Type" : "String",
+      "Default" : "m5.large",
+      "AllowedValues" : [ "m3.large", "m3.xlarge", "m3.2xlarge", "m4.large", "m4.xlarge", "m4.2xlarge", "m4.4xlarge", "m4.10xlarge", "m5.large"]
+    ,
+      "ConstraintDescription" : "must be a valid EC2 instance type."
+    },
+    "AwsScannerSubnetSelection": {
+      "Description": "Subnet ID for Threat Alert",
+      "Type": "AWS::EC2::Subnet::Id",
+      "Default": "subnet-abb88bce"
+    },
+    "ThreatAlertSecurityGroup": {
+      "Description": "Security Group ID for Threat Alert",
+      "Type": "AWS::EC2::SecurityGroup::Id",
+      "Default": "sg-e93ed9a1"
+    },
+    "SplunkInstanceType" : {
+      "Description" : "WebServer EC2 instance type",
+      "Type" : "String",
+      "Default" : "m5.large",
+      "AllowedValues" : [ "m3.large", "m3.xlarge", "m3.2xlarge", "m4.large", "m4.xlarge", "m4.2xlarge", "m4.4xlarge", "m4.10xlarge", "m5.large"]
+    ,
+      "ConstraintDescription" : "must be a valid EC2 instance type."
+    },
+    "SplunkAMI": {
+      "Description": "AMI to be used for Splunk Instances",
+      "Type": "String",
+      "Default" : "ami-467ca739"
+    },
+    "SplunkSubnetSelection": {
+      "Description": "Subnet ID for Threat Alert",
+      "Type": "AWS::EC2::Subnet::Id",
+      "Default": "subnet-abb88bce"
+    },
+    "SplunkSecurityGroup": {
+      "Description": "Security Group ID for Threat Alert",
+      "Type": "AWS::EC2::SecurityGroup::Id",
+      "Default": ""
+    },
+    "KeyName": {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "ConstraintDescription" : "must be the name of an existing EC2 KeyPair."
+    }
+  },
+
+  "Mappings" : {
+
+    "AWSInstanceType2Arch" : {
+      "m1.small"    : { "Arch" : "PV64"   },
+      "m1.medium"   : { "Arch" : "PV64"   },
+      "m1.large"    : { "Arch" : "PV64"   },
+      "m1.xlarge"   : { "Arch" : "PV64"   },
+      "m2.xlarge"   : { "Arch" : "PV64"   },
+      "m2.2xlarge"  : { "Arch" : "PV64"   },
+      "m2.4xlarge"  : { "Arch" : "PV64"   },
+      "m3.medium"   : { "Arch" : "HVM64"  },
+      "m3.large"    : { "Arch" : "HVM64"  },
+      "m3.xlarge"   : { "Arch" : "HVM64"  },
+      "m3.2xlarge"  : { "Arch" : "HVM64"  },
+      "m4.large"    : { "Arch" : "HVM64"  },
+      "m4.xlarge"   : { "Arch" : "HVM64"  },
+      "m4.2xlarge"  : { "Arch" : "HVM64"  },
+      "m4.4xlarge"  : { "Arch" : "HVM64"  },
+      "m4.10xlarge" : { "Arch" : "HVM64"  },
+      "c1.medium"   : { "Arch" : "PV64"   },
+      "c1.xlarge"   : { "Arch" : "PV64"   },
+      "c3.large"    : { "Arch" : "HVM64"  },
+      "c3.xlarge"   : { "Arch" : "HVM64"  },
+      "c3.2xlarge"  : { "Arch" : "HVM64"  },
+      "c3.4xlarge"  : { "Arch" : "HVM64"  },
+      "c3.8xlarge"  : { "Arch" : "HVM64"  },
+      "c4.large"    : { "Arch" : "HVM64"  },
+      "c4.xlarge"   : { "Arch" : "HVM64"  },
+      "c4.2xlarge"  : { "Arch" : "HVM64"  },
+      "c4.4xlarge"  : { "Arch" : "HVM64"  },
+      "c4.8xlarge"  : { "Arch" : "HVM64"  },
+      "g2.2xlarge"  : { "Arch" : "HVMG2"  },
+      "g2.8xlarge"  : { "Arch" : "HVMG2"  },
+      "r3.large"    : { "Arch" : "HVM64"  },
+      "r3.xlarge"   : { "Arch" : "HVM64"  },
+      "r3.2xlarge"  : { "Arch" : "HVM64"  },
+      "r3.4xlarge"  : { "Arch" : "HVM64"  },
+      "r3.8xlarge"  : { "Arch" : "HVM64"  },
+      "i2.xlarge"   : { "Arch" : "HVM64"  },
+      "i2.2xlarge"  : { "Arch" : "HVM64"  },
+      "i2.4xlarge"  : { "Arch" : "HVM64"  },
+      "i2.8xlarge"  : { "Arch" : "HVM64"  },
+      "d2.xlarge"   : { "Arch" : "HVM64"  },
+      "d2.2xlarge"  : { "Arch" : "HVM64"  },
+      "d2.4xlarge"  : { "Arch" : "HVM64"  },
+      "d2.8xlarge"  : { "Arch" : "HVM64"  },
+      "hi1.4xlarge" : { "Arch" : "HVM64"  },
+      "hs1.8xlarge" : { "Arch" : "HVM64"  },
+      "cr1.8xlarge" : { "Arch" : "HVM64"  },
+      "cc2.8xlarge" : { "Arch" : "HVM64"  }
+    },
+    "Region2Principal" : {
+      "us-east-1": {
+        "EC2Principal": "ec2.amazonaws.com",
+        "OpsWorksPrincipal": "opsworks.amazonaws.com"
+      },
+      "us-west-2": {
+        "EC2Principal": "ec2.amazonaws.com",
+        "OpsWorksPrincipal": "opsworks.amazonaws.com"
+      },
+      "us-west-1": {
+        "EC2Principal": "ec2.amazonaws.com",
+        "OpsWorksPrincipal": "opsworks.amazonaws.com"
+      }
+    }
+    },
+
+  "Resources" : {
+
+    "ThreatAlertRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [{
+            "Effect": "Allow",
+            "Principal": { "Service": { "Fn::FindInMap" : [ "Region2Principal", {"Ref" : "AWS::Region"}, "EC2Principal"]}},
+            "Action": [ "sts:AssumeRole" ]
+          }]
+        },
+        "Path": "/"
+      }
+    },
+
+    "ThreatRolePolicy": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "sa-ThreatAlertPolicy",
+        "PolicyDocument": {
+          "Statement": [ {
+            "Action": [
+                "acm:describecertificate",
+                "acm:listcertificates",
+                "cloudtrail:DescribeTrails",
+        	    "cloudtrail:GetTrailStatus",
+        	    "cloudtrail:LookupEvents",
+                "config:describeconfigrules",
+                "config:describeconfigurationrecorders",
+                "directconnect:describeconnections",
+                "ec2:describeaddresses",
+                "ec2:describedhcpoptions",
+                "ec2:describeflowlogs",
+                "ec2:describeimages",
+                "ec2:describeinstances",
+                "ec2:describeinternetgateways",
+                "ec2:describekeypairs",
+                "ec2:describenatgateways",
+                "ec2:describenetworkacls",
+                "ec2:describenetworkinterfaces",
+                "ec2:describeregions",
+                "ec2:describeroutetables",
+                "ec2:describesecuritygroups",
+                "ec2:describesnapshots",
+                "ec2:DescribeSnapshotAttribute",
+                "ec2:describesubnets",
+                "ec2:describetags",
+                "ec2:describevolumes",
+                "ec2:describevpcendpoints",
+                "ec2:describevpcpeeringconnections",
+                "ec2:describevpcs",
+                "ec2:describevpnconnections",
+                "ec2:describevpngateways",
+                "elasticloadbalancing:describeloadbalancerattributes",
+                "elasticloadbalancing:describeloadbalancerpolicies",
+                "elasticloadbalancing:describeloadbalancers",
+                "elasticloadbalancing:describelisteners",
+                "elasticloadbalancing:describerules",
+                "elasticloadbalancing:describesslpolicies",
+                "elasticloadbalancing:describetags",
+                "elasticloadbalancing:describetargetgroups",
+                "elasticloadbalancing:describetargetgroupattributes",
+                "elasticloadbalancing:describetargethealth",
+                "es:describeelasticsearchdomainconfig",
+                "es:listdomainnames",
+                "glacier:DescribeVault",
+                "glacier:GetVaultAccessPolicy",
+                "glacier:ListTagsForVault",
+                "glacier:ListVaults",
+                "iam:GetAccountPasswordPolicy",
+                "iam:getaccesskeylastused",
+                "iam:getgroup",
+                "iam:getgrouppolicy",
+                "iam:getloginprofile",
+                "iam:getpolicyversion",
+                "iam:getrole",
+                "iam:getrolepolicy",
+                "iam:GetSAMLProvider",
+                "iam:getservercertificate",
+                "iam:getuser",
+                "iam:getuserpolicy",
+                "iam:listaccesskeys",
+                "iam:listattachedgrouppolicies",
+                "iam:listattachedrolepolicies",
+                "iam:listattacheduserpolicies",
+                "iam:listentitiesforpolicy",
+                "iam:listgrouppolicies",
+                "iam:listgroups",
+                "iam:listinstanceprofilesforrole",
+                "iam:listmfadevices",
+                "iam:listpolicies",
+                "iam:listrolepolicies",
+                "iam:listroles",
+                "iam:listsamlproviders",
+                "iam:listservercertificates",
+                "iam:listsigningcertificates",
+                "iam:listuserpolicies",
+                "iam:listusers",
+                "kms:describekey",
+                "kms:getkeypolicy",
+                "kms:getkeyrotationstatus",
+                "kms:listaliases",
+                "kms:listgrants",
+                "kms:listkeypolicies",
+                "kms:listkeys",
+                "lambda:getfunctionconfiguration",
+                "lambda:getpolicy",
+                "lambda:listaliases",
+                "lambda:listeventsourcemappings",
+                "lambda:listtags",
+                "lambda:listversionsbyfunction",
+                "lambda:listfunctions",
+                "rds:describedbclusters",
+                "rds:describedbclustersnapshots",
+                "rds:describedbinstances",
+                "rds:describedbsecuritygroups",
+                "rds:describedbsnapshots",
+                "rds:describedbsnapshotattributes",
+                "rds:describedbsubnetgroups",
+                "redshift:describeclusters",
+                "route53:listhostedzones",
+                "route53:listresourcerecordsets",
+                "route53domains:listdomains",
+                "route53domains:getdomaindetail",
+                "s3:getaccelerateconfiguration",
+                "s3:getbucketacl",
+                "s3:getbucketcors",
+                "s3:getbucketlocation",
+                "s3:getbucketlogging",
+                "s3:getbucketnotification",
+                "s3:getbucketpolicy",
+                "s3:getbuckettagging",
+                "s3:getbucketversioning",
+                "s3:getbucketwebsite",
+                "s3:getlifecycleconfiguration",
+                "s3:listbucket",
+                "s3:listallmybuckets",
+                "s3:getreplicationconfiguration",
+                "s3:getanalyticsconfiguration",
+                "s3:getmetricsconfiguration",
+                "s3:getinventoryconfiguration",
+                "ses:getidentityverificationattributes",
+                "ses:listidentities",
+                "ses:listverifiedemailaddresses",
+                "ses:sendemail",
+                "sns:gettopicattributes",
+                "sns:listsubscriptionsbytopic",
+                "sns:listtopics",
+                "sqs:getqueueattributes",
+                "sqs:listqueues"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+          } ]
+        },
+        "Roles": [ { "Ref": "ThreatAlertRole" } ]
+      }
+    },
+
+    "ThreatAlertInstanceProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Path": "/",
+        "Roles": [ { "Ref": "ThreatAlertRole" } ]
+      }
+    },
+
+    "ThreatAlertServer": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId" : { "Ref" : "ThreatAlertAMI"},
+        "InstanceType"       : "m5.large",
+        "IamInstanceProfile" : { "Ref" : "ThreatAlertInstanceProfile" },
+        "SecurityGroupIds" : [{"Ref" : "ThreatAlertSecurityGroup"}],
+        "SubnetId" : {"Ref" : "AwsScannerSubnetSelection"},
+        "Tags": [
+          {"Key" : "Name", "Value" : "sa-threatalert-awsscanner"}
+        ]
+      }
+    },
+
+    "AnchoreServer": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId": {"Ref": "AnchoreAMI"},
+        "InstanceType": "m5.large",
+        "IamInstanceProfile": {"Ref": "ThreatAlertInstanceProfile"},
+        "SecurityGroupIds": [{"Ref": "ThreatAlertSecurityGroup"}],
+        "SubnetId": {"Ref": "AwsScannerSubnetSelection"},
+        "Tags": [
+          {"Key" : "Name", "Value" : "sa-threatalert-anchore"}
+        ]
+      }
+    },
+
+    "SplunkInstance1": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "InstanceType": {"Ref" : "SplunkInstanceType"},
+        "SecurityGroupIds" : [{"Ref" : "SplunkSecurityGroup"}],
+        "ImageId": {"Ref" : "SplunkAMI"},
+        "KeyName" : {"Ref": "KeyName"},
+        "SubnetId" : {"Ref" : "SplunkSubnetSelection"},
+        "Tags": [
+          {"Key" : "Name", "Value" : "sa-threatalert-splunk"}
+        ],
+        "UserData" : {
+          "Fn::Base64" : {
+            "Fn::Join" : ["",
+              [
+                "#!/bin/bash\n",
+                "cd /opt\n",
+                "yum install -y wget\n",
+                "wget -O splunk-7.0.4-68ba48f99743-Linux-x86_64.tgz 'https://www.splunk.com/page/download_track?file=7.0.4/linux/splunk-7.0.4-68ba48f99743-Linux-x86_64.tgz&ac=ga_usa_brand_main_phrase&wget=true&name=wget&platform=Linux&architecture=x86_64&version=7.0.4&product=splunk&typed=release'\n",
+                "tar -zxvf splunk-7.0.4-68ba48f99743-Linux-x86_64.tgz\n",
+				"cd /opt/splunk/bin\n",
+				"./splunk start --accept-license\n"
+              ]
+            ]
+          }
+        }
+
+      },
+      "DependsOn" : "ThreatAlertServer"
+    }
+  },
+
+  "Outputs": {
+    "CustomVPCWebsiteURL": {
+      "Description": "URL for Threat Alert",
+      "Value": "Threat Alert"
+
+    }
+  }
+}

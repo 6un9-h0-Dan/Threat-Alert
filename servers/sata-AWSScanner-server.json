@@ -1,0 +1,130 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "stackArmor Threat Alert AWS Scanner Launcher",
+
+  
+"Parameters" : {
+
+  "sataAWSScannerSubnet" : {
+      "Description": "Subnet used by AWS Scanner",
+      "Type" : "AWS::EC2::Subnet::Id",
+      "Default":""
+      },
+
+  "sataAWSScannerSecurityGroup" : {
+      "Description": "Security Group ID for Threat Alert",
+      "Type": "AWS::EC2::SecurityGroup::Id",
+      "Default": ""
+      },
+
+  "RoleInstanceProfile":{
+      "Description" : "Instance Profile of the role",
+      "Type":"String",
+      "Default": "",
+      "ConstraintDescription" : "must be valid instance profile"
+  },
+  
+
+  "InstanceTypeAwsScanner":{
+      "Description":"Webserver EC2 Instance Type",
+      "Type" : "String",
+      "Default" : "m5.large",
+      "AllowedValues" : [ "m3.large", "m3.xlarge", "m3.2xlarge", "m4.large", "m4.xlarge", "m4.2xlarge", "m4.4xlarge", "m4.10xlarge", "m5.large"]
+      ,
+      "ConstraintDescription" : "must be a valid EC2 instance type."
+      }
+
+
+
+
+  },
+  
+  "Mappings" : {
+
+      "AWSInstanceType2Arch" : {
+        "m1.small"    : { "Arch" : "PV64"   },
+        "m1.medium"   : { "Arch" : "PV64"   },
+        "m1.large"    : { "Arch" : "PV64"   },
+        "m1.xlarge"   : { "Arch" : "PV64"   },
+        "m2.xlarge"   : { "Arch" : "PV64"   },
+        "m2.2xlarge"  : { "Arch" : "PV64"   },
+        "m2.4xlarge"  : { "Arch" : "PV64"   },
+        "m3.medium"   : { "Arch" : "HVM64"  },
+        "m3.large"    : { "Arch" : "HVM64"  },
+        "m3.xlarge"   : { "Arch" : "HVM64"  },
+        "m3.2xlarge"  : { "Arch" : "HVM64"  },
+        "m4.large"    : { "Arch" : "HVM64"  },
+        "m4.xlarge"   : { "Arch" : "HVM64"  },
+        "m4.2xlarge"  : { "Arch" : "HVM64"  },
+        "m4.4xlarge"  : { "Arch" : "HVM64"  },
+        "m4.10xlarge" : { "Arch" : "HVM64"  },
+        "c1.medium"   : { "Arch" : "PV64"   },
+        "c1.xlarge"   : { "Arch" : "PV64"   },
+        "c3.large"    : { "Arch" : "HVM64"  },
+        "c3.xlarge"   : { "Arch" : "HVM64"  },
+        "c3.2xlarge"  : { "Arch" : "HVM64"  },
+        "c3.4xlarge"  : { "Arch" : "HVM64"  },
+        "c3.8xlarge"  : { "Arch" : "HVM64"  },
+        "c4.large"    : { "Arch" : "HVM64"  },
+        "c4.xlarge"   : { "Arch" : "HVM64"  },
+        "c4.2xlarge"  : { "Arch" : "HVM64"  },
+        "c4.4xlarge"  : { "Arch" : "HVM64"  },
+        "c4.8xlarge"  : { "Arch" : "HVM64"  },
+        "g2.2xlarge"  : { "Arch" : "HVMG2"  },
+        "g2.8xlarge"  : { "Arch" : "HVMG2"  },
+        "r3.large"    : { "Arch" : "HVM64"  },
+        "r3.xlarge"   : { "Arch" : "HVM64"  },
+        "r3.2xlarge"  : { "Arch" : "HVM64"  },
+        "r3.4xlarge"  : { "Arch" : "HVM64"  },
+        "r3.8xlarge"  : { "Arch" : "HVM64"  },
+        "i2.xlarge"   : { "Arch" : "HVM64"  },
+        "i2.2xlarge"  : { "Arch" : "HVM64"  },
+        "i2.4xlarge"  : { "Arch" : "HVM64"  },
+        "i2.8xlarge"  : { "Arch" : "HVM64"  },
+        "d2.xlarge"   : { "Arch" : "HVM64"  },
+        "d2.2xlarge"  : { "Arch" : "HVM64"  },
+        "d2.4xlarge"  : { "Arch" : "HVM64"  },
+        "d2.8xlarge"  : { "Arch" : "HVM64"  },
+        "hi1.4xlarge" : { "Arch" : "HVM64"  },
+        "hs1.8xlarge" : { "Arch" : "HVM64"  },
+        "cr1.8xlarge" : { "Arch" : "HVM64"  },
+        "cc2.8xlarge" : { "Arch" : "HVM64"  }
+      },
+      "Region2Principal" : {
+        "us-east-1": {
+          "EC2Principal": "ec2.amazonaws.com",
+          "OpsWorksPrincipal": "opsworks.amazonaws.com"
+        },
+        "us-west-2": {
+          "EC2Principal": "ec2.amazonaws.com",
+          "OpsWorksPrincipal": "opsworks.amazonaws.com"
+        },
+        "us-west-1": {
+          "EC2Principal": "ec2.amazonaws.com",
+          "OpsWorksPrincipal": "opsworks.amazonaws.com"
+        }
+      }
+      },
+
+  "Resources":{
+      "sataAwsscannerServer" : {
+          "Type": "AWS::EC2::Instance",
+          "Properties": {
+            "ImageId" : "ami-2dc38852",
+            "InstanceType" : "m5.large",
+            "IamInstanceProfile" : {"Ref":"RoleInstanceProfile"},
+            
+            "SecurityGroupIds" : [{"Ref" : "sataAWSScannerSecurityGroup"}],
+            "Tags": [
+              {"Key" : "Name", "Value" : "sata-awsscanner-server"}
+            ],
+            "SubnetId": { "Ref": "sataAWSScannerSubnet" }
+          }
+          
+      }
+  }
+  
+  
+
+}
