@@ -1,0 +1,132 @@
+{   
+    "AWSTemplateFormatVersion" : "2010-09-09",
+
+	"Description" : "stackArmor Threat Alert - Cloudwatch cloudformation template for Role",
+	
+	"Parameters" : {},
+  
+  	"Mappings" : {
+    	"Region2Principal" : {
+      	"us-east-2": {
+        	"EC2Principal": "ec2.amazonaws.com",
+        	"OpsWorksPrincipal": "opsworks.amazonaws.com"
+      	},
+      	"us-west-2": {
+        	"EC2Principal": "ec2.amazonaws.com",
+        	"OpsWorksPrincipal": "opsworks.amazonaws.com"
+      	},
+      	"us-west-1": {
+        	"EC2Principal": "ec2.amazonaws.com",
+        	"OpsWorksPrincipal": "opsworks.amazonaws.com"
+      	}
+   	 }
+      },
+    
+    "Resources":{
+        "sataThreatAlertGuardDutyLoggerLambdaExecRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "RoleName" : "sata-GuardDuty-Logger",
+              "AssumeRolePolicyDocument": {
+                  
+                "Version": "2012-10-17",
+                "Statement": [{ "Effect": "Allow", "Principal": {"Service": ["lambda.amazonaws.com"]}, "Action": ["sts:AssumeRole"] }]
+              },
+              "Path": "/",
+              "Policies": [{
+                "PolicyName": "root",
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [{ 
+                      "Sid": "Stmt1529084557026", 
+                      "Effect": "Allow", 
+                      "Action": [
+                          "s3:DeleteObject",
+                          "s3:DeleteObjectTagging", 
+                          "s3:DeleteObjectVersion",
+                          "s3:DeleteObjectVersionTagging",
+                          "s3:GetObject", 
+                          "s3:GetObjectTagging",
+                          "s3:GetObjectVersion",
+                          "s3:ListBucket",
+                          "s3:ListObjects",
+                          "s3:PutObject",
+                          "s3:PutObjectTagging",
+                          "lambda:InvokeAsync",
+                          "lambda:InvokeFunction",
+                          "logs:*"
+
+                        ], 
+                       "Resource": [ 
+                            "arn:aws:logs:*:*:*",
+                            "arn:aws:lambda:us-east-1:726064622671:function:log_guardduty_events",
+                            "arn:aws:s3:::sa.base.guardduty.logs"]}]
+                    }
+              }]
+            }
+          
+        },
+
+        
+        "sataLambdaFunction":{
+            "Type": "AWS::Lambda::Function",
+            "Properties":{
+                "Handler" : "guardduty_logger.gd_events_handler",
+                "Role":{"Fn::GetAtt":["sataThreatAlertGuardDutyLoggerLambdaExecRole","Arn"]},
+                "Code":{
+                    "S3Bucket":"stackarmor-code-todeploy",
+                    "S3Key":"guardduty/latest/log_guardduty_events.zip"
+                },
+                "Environment":{
+                    "Variables":{
+                        "GD_S3_BUCKET":"sa.base.guardduty.logs",
+                        "URL_BASE":"",
+                        "USER_TOKEN":""
+                    }
+                },
+
+                "Runtime": "python2.7",
+                "Timeout": "30",
+                "MemorySize":"256"
+
+            },
+            "DependsOn":"sataThreatAlertGuardDutyLoggerLambdaExecRole"
+        
+
+        },
+        
+
+        "sataGuarddutyLogging":{
+            "Type": "AWS::Events::Rule",
+            "Properties":{
+                "Description":"EventRule",
+                "EventPattern" : {
+                    "source":[
+                        "aws.guardduty"
+                    ]
+                    
+                },
+                "State":"ENABLED",
+                "Targets": [{
+                    "Arn" : {"Fn::GetAtt":["sataLambdaFunction","Arn"]},
+                    "Id": {"Ref":"sataLambdaFunction"}
+                }]
+            },
+            "DependsOn" : ["sataLambdaFunction"]
+        },
+        
+        "sataPermission":{
+            "Type":"AWS::Lambda::Permission",
+            "Properties":{
+                "FunctionName": {"Ref":"sataLambdaFunction"},
+                "Action":"lambda:InvokeFunction",
+                "Principal":"events.amazonaws.com",
+                "SourceArn":{"Fn::GetAtt":["sataLambdaFunction","Arn"]}
+            },
+            "DependsOn" : "sataLambdaFunction"
+        }
+    
+
+    }
+
+}
