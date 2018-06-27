@@ -1,0 +1,142 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "stackArmor SNS MSA Alerts Topics",
+	"Parameters": {},
+	"Mappings": {},
+	"Conditions": {},
+	"Resources": {
+		"GuardDutyHighFinding" : {
+   			"Type" : "AWS::SNS::Topic",
+   			"Properties" : {
+      			"Subscription" : [
+         			{ "Endpoint" : "rick@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "terry@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "kelley@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "fawad@stackarmor.com", "Protocol" : "email" }
+      			],
+      		"TopicName" : "GuardDutyHighFinding"
+			}
+		},
+		"FailedLogin" : {
+   			"Type" : "AWS::SNS::Topic",
+   			"Properties" : {
+      			"Subscription" : [
+         			{ "Endpoint" : "rick@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "terry@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "kelley@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "fawad@stackarmor.com", "Protocol" : "email" }
+      			],
+      		"TopicName" : "FailedLogin"
+			}
+		},
+		"MalwareDetection" : {
+   			"Type" : "AWS::SNS::Topic",
+   			"Properties" : {
+      			"Subscription" : [
+         			{ "Endpoint" : "rick@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "terry@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "kelley@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "fawad@stackarmor.com", "Protocol" : "email" }
+      			],
+      		"TopicName" : "MalwareDetection"
+			}
+		},
+		"FileIntegrity" : {
+   			"Type" : "AWS::SNS::Topic",
+   			"Properties" : {
+      			"Subscription" : [
+         			{ "Endpoint" : "rick@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "terry@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "kelley@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "fawad@stackarmor.com", "Protocol" : "email" }
+      			],
+      		"TopicName" : "FileIntegrity"
+			}
+		},
+		"SecurityGroupCreationDeletion" : {
+   			"Type" : "AWS::SNS::Topic",
+   			"Properties" : {
+      			"Subscription" : [
+         			{ "Endpoint" : "rick@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "terry@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "kelley@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "fawad@stackarmor.com", "Protocol" : "email" }
+      			],
+      		"TopicName" : "SecurityGroupCreation_Deletion"
+			}
+		},
+		"SecurityGroupRuleChange" : {
+   			"Type" : "AWS::SNS::Topic",
+   			"Properties" : {
+      			"Subscription" : [
+         			{ "Endpoint" : "rick@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "terry@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "kelley@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "fawad@stackarmor.com", "Protocol" : "email" }
+      			],
+      		"TopicName" : "SecurityGroupRuleChange"
+			}
+		},
+		"EC2StatusFailure" : {
+   			"Type" : "AWS::SNS::Topic",
+   			"Properties" : {
+      			"Subscription" : [
+         			{ "Endpoint" : "rick@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "terry@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "kelley@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "fawad@stackarmor.com", "Protocol" : "email" }
+      			],
+      		"TopicName" : "EC2StatusFailure"
+			}
+		},
+		"EC2InstanceAction" : {
+   			"Type" : "AWS::SNS::Topic",
+   			"Properties" : {
+      			"Subscription" : [
+         			{ "Endpoint" : "rick@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "terry@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "kelley@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "fawad@stackarmor.com", "Protocol" : "email" }
+      			],
+      		"TopicName" : "EC2InstanceAction"
+			}
+		},
+		"UserGroupCreationDeletion" : {
+   			"Type" : "AWS::SNS::Topic",
+   			"Properties" : {
+      			"Subscription" : [
+         			{ "Endpoint" : "rick@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "terry@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "kelley@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "fawad@stackarmor.com", "Protocol" : "email" }
+      			],
+      		"TopicName" : "User_GroupCreation_Deletion"
+			}
+		},
+		"AfterHoursLogin" : {
+   			"Type" : "AWS::SNS::Topic",
+   			"Properties" : {
+      			"Subscription" : [
+         			{ "Endpoint" : "rick@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "terry@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "kelley@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "fawad@stackarmor.com", "Protocol" : "email" }
+      			],
+      		"TopicName" : "AfterHoursLogin"
+			}
+		},
+		"OutofAreaLogin" : {
+   			"Type" : "AWS::SNS::Topic",
+   			"Properties" : {
+      			"Subscription" : [
+         			{ "Endpoint" : "rick@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "terry@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "kelley@stackarmor.com", "Protocol" : "email" },
+         			{ "Endpoint" : "fawad@stackarmor.com", "Protocol" : "email" }
+      			],
+      		"TopicName" : "OutofAreaLogin"
+			}
+		}	
+	},
+	"Outputs": {}
+}
