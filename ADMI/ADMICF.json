@@ -1,0 +1,1244 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Resources": {
+      "vpcddcacdbb": {
+        "Type": "AWS::EC2::VPC",
+        "Properties": {
+          "CidrBlock": "10.66.0.0/16",
+          "InstanceTenancy": "default",
+          "EnableDnsSupport": "true",
+          "EnableDnsHostnames": "true",
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Prod/Test VPC"
+            }
+          ]
+        }
+      },
+      "subnet94e5c3ce": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.18.0/27",
+          "AvailabilityZone": "us-west-2a",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Firewall Management 1d"
+            }
+          ]
+        }
+      },
+      "subnetdefc85e2": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.4.32/27",
+          "AvailabilityZone": "us-west-2b",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Prod MongoDB Subnet2 1e"
+            }
+          ]
+        }
+      },
+      "subnet20d08645": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.8.0/27",
+          "AvailabilityZone": "us-west-2a",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Test MongoDB Subnet 1a"
+            }
+          ]
+        }
+      },
+      "subnet4b4e5e10": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.3.0/24",
+          "AvailabilityZone": "us-west-2c",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Prod Private Subnet 1d"
+            }
+          ]
+        }
+      },
+      "subnetd332bcb7": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.19.32/27",
+          "AvailabilityZone": "us-west-2a",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Prod Private CM"
+            }
+          ]
+        }
+      },
+      "subnetec4d5db7": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.1.0/24",
+          "AvailabilityZone": "us-west-2a",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Prod Public Subnet 1d"
+            }
+          ]
+        }
+      },
+      "subnet5c011c07": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.15.0/25",
+          "AvailabilityZone": "us-west-2b",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Prod SQL Subnet 1d"
+            }
+          ]
+        }
+      },
+      "subnetf27b6ba9": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.11.0/25",
+          "AvailabilityZone": "us-west-2a",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Management Subnet 1d"
+            }
+          ]
+        }
+      },
+      "subneta77565fc": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.7.0/24",
+          "AvailabilityZone": "us-west-2c",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Test Private Subnet 1d"
+            }
+          ]
+        }
+      },
+      "subnet3f7a6a64": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.5.0/27",
+          "AvailabilityZone": "us-west-2b",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Prod MongoDB Subnet 1d"
+            }
+          ]
+        }
+      },
+      "subnetc9d583ac": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.0.0/24",
+          "AvailabilityZone": "us-west-2a",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Prod Public Subnet 1a"
+            }
+          ]
+        }
+      },
+      "subnetd5df89b0": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.10.0/25",
+          "AvailabilityZone": "us-west-2a",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Management 1a"
+            }
+          ]
+        }
+      },
+      "subnetcdad5fa9": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.17.0/24",
+          "AvailabilityZone": "us-west-2a",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Firewall Management 1a"
+            }
+          ]
+        }
+      },
+      "subneteb1518d7": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.16.64/27",
+          "AvailabilityZone": "us-west-2b",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Prod Solr Cluster Subnet 1e"
+            }
+          ]
+        }
+      },
+      "subnet19d7817c": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.2.0/24",
+          "AvailabilityZone": "us-west-2a",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Prod Private Subnet 1a"
+            }
+          ]
+        }
+      },
+      "subnet51d08634": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.6.0/24",
+          "AvailabilityZone": "us-west-2a",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Test Private Subnet"
+            }
+          ]
+        }
+      },
+      "subnet1fdf897a": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.4.0/27",
+          "AvailabilityZone": "us-west-2a",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Prod MongoDB Subnet 1a"
+            }
+          ]
+        }
+      },
+      "subnetad7d6df6": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.14.0/25",
+          "AvailabilityZone": "us-west-2c",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Test SQL Subnet 1d"
+            }
+          ]
+        }
+      },
+      "subnete6de8883": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.13.0/25",
+          "AvailabilityZone": "us-west-2a",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Prod SQL Subnet 1a"
+            }
+          ]
+        }
+      },
+      "subnete54ffb81": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.19.0/27",
+          "AvailabilityZone": "us-west-2a",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Prod API"
+            }
+          ]
+        }
+      },
+      "subnet9536d5f1": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.16.0/27",
+          "AvailabilityZone": "us-west-2a",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Prod Solr Cluster Subnet 1a"
+            }
+          ]
+        }
+      },
+      "subnet7b8b1f21": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "CidrBlock": "10.66.16.32/27",
+          "AvailabilityZone": "us-west-2c",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Prod Solr Cluster Subnet 1d"
+            }
+          ]
+        }
+      },
+      "igwdbfa04bd": {
+        "Type": "AWS::EC2::InternetGateway",
+        "Properties": {
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental IG "
+            }
+          ]
+        }
+      },
+      "dopt2aeee54d": {
+        "Type": "AWS::EC2::DHCPOptions",
+        "Properties": {
+          "DomainName": "aspendental.int",
+          "DomainNameServers": [
+            "AmazonProvidedDNS",
+            "10.66.10.10",
+            "10.66.11.11"
+          ],
+          "NtpServers": [
+            "10.66.10.10"
+          ],
+          "NetbiosNodeType": "2",
+          "NetbiosNameServers": [
+            "10.66.10.10",
+            "10.66.11.11"
+          ]
+        }
+      },
+      "acl9e24f8e7": {
+        "Type": "AWS::EC2::NetworkAcl",
+        "Properties": {
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          }
+        }
+      },
+      "rtb5f207c26": {
+        "Type": "AWS::EC2::RouteTable",
+        "Properties": {
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Private Route 1d"
+            }
+          ]
+        }
+      },
+      "rtb735b1a09": {
+        "Type": "AWS::EC2::RouteTable",
+        "Properties": {
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Management Route 1a"
+            }
+          ]
+        }
+      },
+      "rtba25213d8": {
+        "Type": "AWS::EC2::RouteTable",
+        "Properties": {
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Management Route 1d"
+            }
+          ]
+        }
+      },
+      "rtb1677366c": {
+        "Type": "AWS::EC2::RouteTable",
+        "Properties": {
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Production CM 1a"
+            }
+          ]
+        }
+      },
+      "rtb5d207c24": {
+        "Type": "AWS::EC2::RouteTable",
+        "Properties": {
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Private Route 1a"
+            }
+          ]
+        }
+      },
+      "rtbaf90e7d4": {
+        "Type": "AWS::EC2::RouteTable",
+        "Properties": {
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Production Private Route 1a"
+            }
+          ]
+        }
+      },
+      "rtbb690e7cd": {
+        "Type": "AWS::EC2::RouteTable",
+        "Properties": {
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Production Public Route"
+            }
+          ]
+        }
+      },
+      "rtbf40b578d": {
+        "Type": "AWS::EC2::RouteTable",
+        "Properties": {
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Public Route"
+            }
+          ]
+        }
+      },
+      "rtba290e7d9": {
+        "Type": "AWS::EC2::RouteTable",
+        "Properties": {
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "AspenDental Production Private Route 1d"
+            }
+          ]
+        }
+      },
+      "sgaspendentalprodcmsql": {
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+          "GroupDescription": "Security Group for CM SQL Server",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          }
+        }
+      },
+      "sgaspendentalprodslralb": {
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+          "GroupDescription": "aspendental-prod-slr-alb",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          }
+        }
+      },
+      "sgaspendentalproddigizuite": {
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+          "GroupDescription": "aspendental-prod-digizuite for Web, Batch and Storage Servers",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "aspendental-prod-digizuite"
+            }
+          ]
+        }
+      },
+      "sgaspendentalprodelbsolrsg": {
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+          "GroupDescription": "aspendental-prod-elb-solr-sg",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          }
+        }
+      },
+      "sgaspendentalprodcdsql": {
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+          "GroupDescription": "Security Group for CD SQL Server",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          }
+        }
+      },
+      "sgAspenDentalActiveDirectoryDomainController1SGXKNSBP3GAMF0": {
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+          "GroupDescription": "Domain Controller",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          }
+        }
+      },
+      "sgaspendentalprodcd": {
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+          "GroupDescription": "Security Group for Production CD servers",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          }
+        }
+      },
+      "sgAspenDentalActiveDirectoryDomainController2SG1JX2OW03713F4": {
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+          "GroupDescription": "Domain Controller",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          }
+        }
+      },
+      "sgaspendentalprodpublic": {
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+          "GroupDescription": "Security Group for Public Access",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          }
+        }
+      },
+      "sgaspendentalprodfirewall": {
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+          "GroupDescription": "Security Group for Palo Altos",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          }
+        }
+      },
+      "sgaspendentalpromongodb": {
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+          "GroupDescription": "Security Group for MongoDB",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          }
+        }
+      },
+      "sgaspenprodcm": {
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+          "GroupDescription": "Security Group for Production Content Management",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          }
+        }
+      },
+      "sgaspendentalprodprocessing": {
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+          "GroupDescription": "Security Group for Processing Server",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          }
+        }
+      },
+      "sgaspendentalprodwhitelistcd": {
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+          "GroupDescription": "Security Group for production ELB",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          }
+        }
+      },
+      "sgaspendentalprodsolr": {
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+          "GroupDescription": "Security Group for SOLR Cluster",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          }
+        }
+      },
+      "sgaspendentalproddigizuitewebservers": {
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+          "GroupDescription": "Security Group for DigiZuite Webservers",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          }
+        }
+      },
+      "sgaspendentalmanagementfirewall": {
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+          "GroupDescription": "Security Group for Palo Alto Firewall Management",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          }
+        }
+      },
+      "sgaspendentalprodapi": {
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+          "GroupDescription": "aspendental-prod-api",
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "Tags": [
+            {
+              "Key": "Name",
+              "Value": "aspendental-prod-api"
+            }
+          ]
+        }
+      },
+      "acl1": {
+        "Type": "AWS::EC2::NetworkAclEntry",
+        "Properties": {
+          "CidrBlock": "0.0.0.0/0",
+          "Egress": "true",
+          "Protocol": "-1",
+          "RuleAction": "allow",
+          "RuleNumber": "100",
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          }
+        }
+      },
+      "acl2": {
+        "Type": "AWS::EC2::NetworkAclEntry",
+        "Properties": {
+          "CidrBlock": "0.0.0.0/0",
+          "Protocol": "-1",
+          "RuleAction": "allow",
+          "RuleNumber": "100",
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          }
+        }
+      },
+      "subnetacl1": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subnet3f7a6a64"
+          }
+        }
+      },
+      "subnetacl2": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subnetcdad5fa9"
+          }
+        }
+      },
+      "subnetacl3": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subneteb1518d7"
+          }
+        }
+      },
+      "subnetacl4": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subnet5c011c07"
+          }
+        }
+      },
+      "subnetacl5": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subnete6de8883"
+          }
+        }
+      },
+      "subnetacl6": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subnet7b8b1f21"
+          }
+        }
+      },
+      "subnetacl7": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subnet9536d5f1"
+          }
+        }
+      },
+      "subnetacl8": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subnet51d08634"
+          }
+        }
+      },
+      "subnetacl9": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subnetec4d5db7"
+          }
+        }
+      },
+      "subnetacl10": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subnetd5df89b0"
+          }
+        }
+      },
+      "subnetacl11": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subnet19d7817c"
+          }
+        }
+      },
+      "subnetacl12": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subnet20d08645"
+          }
+        }
+      },
+      "subnetacl13": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subnete54ffb81"
+          }
+        }
+      },
+      "subnetacl14": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subnetf27b6ba9"
+          }
+        }
+      },
+      "subnetacl15": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subnetdefc85e2"
+          }
+        }
+      },
+      "subnetacl16": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subnetd332bcb7"
+          }
+        }
+      },
+      "subnetacl17": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subnet1fdf897a"
+          }
+        }
+      },
+      "subnetacl18": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subnetc9d583ac"
+          }
+        }
+      },
+      "subnetacl19": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subnet94e5c3ce"
+          }
+        }
+      },
+      "subnetacl20": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subnetad7d6df6"
+          }
+        }
+      },
+      "subnetacl21": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subneta77565fc"
+          }
+        }
+      },
+      "subnetacl22": {
+        "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+        "Properties": {
+          "NetworkAclId": {
+            "Ref": "acl9e24f8e7"
+          },
+          "SubnetId": {
+            "Ref": "subnet4b4e5e10"
+          }
+        }
+      },
+      "gw1": {
+        "Type": "AWS::EC2::VPCGatewayAttachment",
+        "Properties": {
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "InternetGatewayId": {
+            "Ref": "igwdbfa04bd"
+          }
+        }
+      },
+      "subnetroute1": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtb5f207c26"
+          },
+          "SubnetId": {
+            "Ref": "subneta77565fc"
+          }
+        }
+      },
+      "subnetroute2": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtb5f207c26"
+          },
+          "SubnetId": {
+            "Ref": "subnetad7d6df6"
+          }
+        }
+      },
+      "subnetroute3": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtb5f207c26"
+          },
+          "SubnetId": {
+            "Ref": "subneteb1518d7"
+          }
+        }
+      },
+      "subnetroute4": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtba25213d8"
+          },
+          "SubnetId": {
+            "Ref": "subnetf27b6ba9"
+          }
+        }
+      },
+      "subnetroute5": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtb1677366c"
+          },
+          "SubnetId": {
+            "Ref": "subnetd332bcb7"
+          }
+        }
+      },
+      "subnetroute6": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtb5d207c24"
+          },
+          "SubnetId": {
+            "Ref": "subnetd5df89b0"
+          }
+        }
+      },
+      "subnetroute7": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtb5d207c24"
+          },
+          "SubnetId": {
+            "Ref": "subnet20d08645"
+          }
+        }
+      },
+      "subnetroute8": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtbaf90e7d4"
+          },
+          "SubnetId": {
+            "Ref": "subnet19d7817c"
+          }
+        }
+      },
+      "subnetroute9": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtbaf90e7d4"
+          },
+          "SubnetId": {
+            "Ref": "subnete54ffb81"
+          }
+        }
+      },
+      "subnetroute10": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtbaf90e7d4"
+          },
+          "SubnetId": {
+            "Ref": "subnetcdad5fa9"
+          }
+        }
+      },
+      "subnetroute11": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtbaf90e7d4"
+          },
+          "SubnetId": {
+            "Ref": "subnet9536d5f1"
+          }
+        }
+      },
+      "subnetroute12": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtbaf90e7d4"
+          },
+          "SubnetId": {
+            "Ref": "subnet1fdf897a"
+          }
+        }
+      },
+      "subnetroute13": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtbaf90e7d4"
+          },
+          "SubnetId": {
+            "Ref": "subnete6de8883"
+          }
+        }
+      },
+      "subnetroute14": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtbaf90e7d4"
+          },
+          "SubnetId": {
+            "Ref": "subnetdefc85e2"
+          }
+        }
+      },
+      "subnetroute15": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtbb690e7cd"
+          },
+          "SubnetId": {
+            "Ref": "subnetc9d583ac"
+          }
+        }
+      },
+      "subnetroute16": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtbb690e7cd"
+          },
+          "SubnetId": {
+            "Ref": "subnetec4d5db7"
+          }
+        }
+      },
+      "subnetroute18": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtbf40b578d"
+          },
+          "SubnetId": {
+            "Ref": "subnet51d08634"
+          }
+        }
+      },
+      "subnetroute19": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtba290e7d9"
+          },
+          "SubnetId": {
+            "Ref": "subnet4b4e5e10"
+          }
+        }
+      },
+      "subnetroute20": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtba290e7d9"
+          },
+          "SubnetId": {
+            "Ref": "subnet94e5c3ce"
+          }
+        }
+      },
+      "subnetroute21": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtba290e7d9"
+          },
+          "SubnetId": {
+            "Ref": "subnet7b8b1f21"
+          }
+        }
+      },
+      "subnetroute22": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtba290e7d9"
+          },
+          "SubnetId": {
+            "Ref": "subnet5c011c07"
+          }
+        }
+      },
+      "subnetroute23": {
+        "Type": "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties": {
+          "RouteTableId": {
+            "Ref": "rtba290e7d9"
+          },
+          "SubnetId": {
+            "Ref": "subnet3f7a6a64"
+          }
+        }
+      },
+      
+      "dchpassoc1": {
+        "Type": "AWS::EC2::VPCDHCPOptionsAssociation",
+        "Properties": {
+          "VpcId": {
+            "Ref": "vpcddcacdbb"
+          },
+          "DhcpOptionsId": {
+            "Ref": "dopt2aeee54d"
+          }
+        }
+      }
+    },  
+    "Description": "US West Template"
+  
+}
