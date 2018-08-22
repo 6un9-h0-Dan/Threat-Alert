@@ -147,7 +147,8 @@
             "Action": [ "sts:AssumeRole" ]
           }]
         },
-        "Path": "/"
+        "Path": "/",
+	"RoleName":"ThreatAlertRole"
       }
     },
 
@@ -299,7 +300,8 @@
       "Type": "AWS::IAM::InstanceProfile",
       "Properties": {
         "Path": "/",
-        "Roles": [ { "Ref": "ThreatAlertRole" } ]
+        "Roles": [ { "Ref": "ThreatAlertRole" } ],
+	"InstanceProfileName" : "ThreatAlertInstanceProfile"
       }
     },
 
