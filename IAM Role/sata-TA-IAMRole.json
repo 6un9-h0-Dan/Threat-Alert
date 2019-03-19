@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
-  "Description" : "stackArmor Threat Alert - Create Role",
+  "Description" : "stackArmor ThreatAlert - Create Role",
 
   "Parameters" : {},
   
