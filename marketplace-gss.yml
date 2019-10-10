@@ -7,7 +7,7 @@ Parameters:
         The logical order is preserved.'
     Type: List<AWS::EC2::AvailabilityZone::Name>
 
-  DomainPassword:
+  DomainAdminPassword:
     AllowedPattern: (?=^.{6,255}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*
     Description: Password for the domain admin user. Must be at least 8 characters
       containing letters, numbers and symbols
@@ -15,7 +15,7 @@ Parameters:
     MinLength: '8'
     NoEcho: 'true'
     Type: String
-  DomainUser:
+  DomainAdminUser:
     AllowedPattern: '[a-zA-Z0-9]*'
     Default: StackAdmin
     Description: User name for the Domain Administrator. This is separate from the
@@ -23,7 +23,7 @@ Parameters:
     MaxLength: '25'
     MinLength: '5'
     Type: String
-  DomainDNS:
+  DomainDNSName:
     Description: Fully qualified domain name (FQDN) e.g. example.com
     Type: String
     Default: example.com
@@ -31,7 +31,7 @@ Parameters:
     MaxLength: '255'
     AllowedPattern: '[a-zA-Z0-9\-]+\..+'
 
-  DomainNetBIOS:
+  DomainNetBIOSName:
     AllowedPattern: '[a-zA-Z0-9\-]+'
     Default: example
     Description: NetBIOS name of the domain (up to 15 characters) for users of earlier
@@ -40,7 +40,7 @@ Parameters:
     MinLength: '1'
     Type: String
 
-  BastionInstanceType:
+  RDGWInstanceType:
     Description: Amazon EC2 instance type for the Remote Desktop Gateway instances
     Type: String
     Default: t2.large
@@ -83,7 +83,7 @@ Parameters:
     MaxLength: '18'
 
   SubnetCidrBlock2:
-    Description: Enter Public Subnet 2 CIDR Block.
+    Description: Enter Private Subnet 1 CIDR Block.
     Type: String
     Default: 10.0.1.0/24
     MinLength: '10'
@@ -124,22 +124,6 @@ Parameters:
     MinLength: '10'
     MaxLength: '18'
     ConstraintDescription: Directory Service Subnet Group must be comprised of 2 subnets in seperate availability zones within the specified VPC for deploying this template
-  
-  BastionAMI:
-    Description: AMI ID of Threat Alert
-    Type: AWS::EC2::Image::Id
-    Default: ami-02a867cfe4470dd2b
-
-  NumberOfBastionHosts:
-    AllowedValues:
-      - '1'
-      - '2'
-      - '3'
-      - '4'
-    Default: '1'
-    Description: Enter the number of Remote Desktop Gateway hosts to create
-    Type: String
-        
 
   ThreatAlertAMI:
     Description: AMI ID of Threat Alert
@@ -156,11 +140,11 @@ Parameters:
   OpsAlertAMI:
     Description: AMI ID of OpsAlert
     Type: AWS::EC2::Image::Id
-    Default: ami-0df7dad22d9e76e52
+    Default: ami-0b4ee4185073ba4b5
   RapidSSPAMI:
     Description: AMI of RapidSSP
     Type: String
-    Default: ami-001b0edc0e778fc1e
+    Default: ami-0d7dd814810438c65
 
   ThreatAlertInstanceType:
     Description: WebServer EC2 instance type
@@ -350,7 +334,7 @@ Mappings:
     sa-east-1:
       WS2016FULLBASE: ami-05c6c992668058be2
     us-east-1:
-      WS2016FULLBASE: ami-0bf148826ef491d16
+      WS2016FULLBASE: ami-0d41aee8a57fdb850
     us-east-2:
       WS2016FULLBASE: ami-08b4a0f6e106c1dba
     us-west-1:
@@ -476,7 +460,96 @@ Resources:
         ToPort: '-1'
         CidrIp: !Ref 'RDGWCIDR'
 
-  
+  BastionServer:
+    Type: AWS::EC2::Instance
+    Metadata:
+      AWS::Cloudformation::Init:
+        configSets:
+          config:
+            - setup
+            - installADDS
+            - finalize
+        setup:
+          files:
+            c:\cfn\cfn-hup.conf:
+              content: !Sub |
+                [main]
+                stack=${AWS::StackId}
+                region=${AWS::Region}
+            c:\cfn\hooks.d\cfn-auto-reloader.conf:
+              content: !Sub |
+                [cfn-auto-reloader-hook]
+                triggers=post.update
+                path=Resources.BastionServer.Metadata.AWS::CloudFormation::Init
+                action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource LaunchConfig --configsets full_install --region ${AWS::Region}
+          services:
+            windows:
+              cfn-hup:
+                enabled: 'true'
+                ensureRunning: 'true'
+                files:
+                  - c:\cfn\cfn-hup.conf
+                  - c:\cfn\hooks.d\cfn-auto-reloader.conf
+      
+        
+        installADDS:
+          commands:
+            1-install-prereqs:
+              command: powershell.exe -Command "Install-WindowsFeature RSAT-AD-Powershell, RSAT-ADDS-Tools;"
+              waitAfterCompletion: '0'
+            
+            2-import-module:
+              command: powershell.exe -ExecutionPolicy Bypass -Command Import-Module ActiveDirectory
+            
+            3-create-adminuser: 
+              command: !Join
+              - '' 
+              - - powershell.exe -ExecutionPolicy Bypass -Command 'YO' > C:\Users\public\output.txt             
+                  
+              waitAfterCompletion: '0'
+           
+          
+        finalize:
+            1-signal-success:
+              command: powershell.exe -Command "Write-AWSQuickStartStatus"
+              waitAfterCompletion: '0'
+
+    Properties:
+      ImageId:
+        Fn::FindInMap:
+        - "AWSAMIRegionMap"
+        - Ref: "AWS::Region"
+        - "WS2016FULLBASE"
+      InstanceType: t2.medium
+      SsmAssociations: 
+        -
+          DocumentName: 
+            Ref: "ThreatAlertSSMDoc"
+          
+      KeyName: !Ref 'KeyPair'
+      UserData: !Base64
+        Fn::Join:
+          - ''
+          - - "<script>\n"
+            - 'cfn-init.exe -v -c config -s '
+            - !Ref 'AWS::StackId'
+            - ' -r BastionServer'
+            - ' --region '
+            - !Ref 'AWS::Region'
+            - "\n"
+            - "</script>\n"
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: "true"
+          DeviceIndex: "0"
+          GroupSet:
+            - Ref: "RemoteDesktopGatewaySG"
+          SubnetId:
+            Ref: 'ThreatAlertSN1'
+      IamInstanceProfile: !Ref 'ThreatAlertHostProfile'
+      Tags:
+        - Key: Name
+          Value: Bastion-Server
+    DependsOn: [ThreatAlertDirectory,ThreatAlertSSMDoc]
 
   ThreatAlertVPC:
     Type: AWS::EC2::VPC
@@ -530,6 +603,15 @@ Resources:
         - Key: Name
           Value: ThreatAlert-RouteTable1
 
+
+  threatAlertPrivateRT:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref 'ThreatAlertVPC'
+      Tags:
+        - Key: Name 
+          Value: ThreatAlert-Private-RouteTable
+
   ThreatAlertRoute1:
     Type: AWS::EC2::Route
     Properties:
@@ -539,6 +621,16 @@ Resources:
     DependsOn:
       - ThreatAlertInternetGateway
       - ThreatAlertRT
+  
+  ThreatAlertRoute2:
+    Type: AWS::EC2::Route
+    Properties: 
+      DestinationCidrBlock: '0.0.0.0/0'
+      RouteTableId: !Ref 'threatAlertPrivateRT'
+      NatGatewayId: !Ref 'ThreatAlertprodNatGateway'
+    DependsOn:
+      - ThreatAlertprodNatGateway
+      - threatAlertPrivateRT
 
   ThreatAlertSubRoute:
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -549,13 +641,17 @@ Resources:
   ThreatAlertSubRoute2:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref 'ThreatAlertRT'
+      RouteTableId: !Ref 'threatAlertPrivateRT'
       SubnetId: !Ref 'ThreatAlertSubnetSelection'
 
   DBISubnet1:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref 'ThreatAlertVPC'
+      AvailabilityZone: 
+        Fn::Select: 
+          - 0
+          - Fn::GetAZs: ""      
       CidrBlock: !Ref 'DatabaseSubnet1'
       Tags:
         - Key: Name
@@ -566,6 +662,10 @@ Resources:
     Properties:
       VpcId: !Ref 'ThreatAlertVPC'
       CidrBlock: !Ref 'DatabaseSubnet2'
+      AvailabilityZone: 
+        Fn::Select: 
+          - 1
+          - Fn::GetAZs: "" 
       Tags:
         - Key: Name
           Value: threatAlert-dbsubnet-02
@@ -656,17 +756,29 @@ Resources:
     Type: AWS::DirectoryService::MicrosoftAD
     Properties:
       Name: "threatalert.stackarmor.com"
+      Edition: "Standard"
       Password:
         Ref: MicrosoftADPW
       VpcSettings:
-        SubnetIds:
-          - Ref: DirectorySubnet1
-          - Ref: DirectorySubnet2
         VpcId:
           Ref: ThreatAlertVPC
-      Edition: "Standard"
-  
-  
+        SubnetIds:
+        - Ref: DirectorySubnet1
+        - Ref: DirectorySubnet2
+   
+  ThreatAlertSSMDoc:
+    Type: AWS::SSM::Document
+    Properties:
+      Content:
+        schemaVersion: '1.2'
+        description: Join instances to an AWS Directory Service Domain
+        runtimeConfig:
+          aws:domainJoin:
+            properties:
+              directoryId: !Ref 'ThreatAlertDirectory'
+              directoryName: "threatalert.stackarmor.com"
+              dnsIpAddresses:  !GetAtt ThreatAlertDirectory.DnsIpAddresses
+    DependsOn: ThreatAlertDirectory
   
   ThreatAlertEIPForNatGateway:
     Type: AWS::EC2::EIP
@@ -1255,6 +1367,10 @@ Resources:
     Properties:
       ImageId: !Ref 'ThreatAlertAMI'
       InstanceType: !Ref 'ThreatAlertInstanceType'
+      SsmAssociations: 
+        -
+          DocumentName: 
+            Ref: "ThreatAlertSSMDoc" 
       KeyName: !Ref 'KeyPair'
       IamInstanceProfile: !Ref 'ThreatAlertGSSInstanceProfile'
       SecurityGroupIds:
@@ -1263,6 +1379,7 @@ Resources:
       Tags:
         - Key: Name
           Value: ThreatAlert-Server
+    DependsOn: ThreatAlertSSMDoc
       
 
   OpsAlertServer:
@@ -1315,27 +1432,6 @@ Resources:
         ProtectedInstances: !Ref DSMProtectedInstances
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref DSMS3KeyPrefix
-
-  BastionServer:
-    Type: AWS::CloudFormation::Stack
-    Properties: 
-      TemplateURL: https://microsoft-rdgateway-ta.s3.amazonaws.com/rdgw-domain.template
-      Parameters:
-        DomainAdminPassword: !Ref DomainPassword
-        DomainAdminUser: !Ref DomainUser
-        DomainDNSName: !Ref DomainDNS
-        DomainMemberSGID: !Ref RemoteDesktopGatewaySG
-        DomainNetBIOSName: !Ref DomainNetBIOS
-        KeyPairName: !Ref KeyPair
-        LatestAmiId: !Ref BastionAMI
-        NumberOfRDGWHosts: !Ref NumberOfBastionHosts
-        PublicSubnet1ID: !Ref ThreatAlertSN1
-        PublicSubnet2ID: !Ref ThreatAlertSubnetSelection
-        QSS3BucketName: !Ref QSS3BucketName
-        QSS3KeyPrefix: !Ref QSS3KeyPrefix
-        RDGWInstanceType: !Ref BastionInstanceType
-        RDGWCIDR: !Ref RDGWCIDR
-        VPCID: !Ref ThreatAlertVPC
 
 
   RecoveryAlarmThreatAlert:
@@ -1550,4 +1646,3 @@ Resources:
     Type: AWS::GuardDuty::Detector
     Properties: 
       Enable: True
-    
