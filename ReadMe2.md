@@ -42,7 +42,7 @@ Here are some of the tools that StackArmor leverages to meet DevSecOps requireme
 1. Monitors traffic for new vulnerabilities with host-based intrusion prevention filters and zero-day attack monitoring
 
 ### 5. Threat Modeling and Vulnerability Assessment - Tenable Nessus
-1. Idenfity configuration vulnerabilities across a wide spectrum of operating systems.
+1. Identify configuration vulnerabilities across a wide spectrum of operating systems.
 1. Built in support for compliance regulations, such as DISA Security Technical Implementation Guides (STIGs), NIST 800-53. 
 1. Provides recommedations for immediate remediation.
 1. Built-in and extensible database assessment capabilities
