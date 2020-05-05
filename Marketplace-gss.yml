@@ -1,6 +1,82 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: This is a parent template to deploy child templates.
 
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      -
+        Label:
+          default: "VPC, Subnets, FedRAMP, and Type of Cloud"
+        Parameters:
+          - VPCSubnetCidrBlock
+          - Classification
+          - TypeOfCloud
+          - AvailabilityZones
+          - NumberOfAZs
+          - SubnetCidrBlock1
+          - SubnetCidrBlock2
+          - DatabaseSubnet1
+          - DatabaseSubnet2
+          - DSSubnet1
+          - DSSubnet2
+          - RDGWCIDR
+      -
+        Label:
+          default: "KeyPair and Buckets name "
+        Parameters:
+          - KeyPair
+          - TAS3BucketName
+          - GTAS3BucketName
+      -
+        Label:
+          default: "Domains and Directory Service"
+        Parameters:
+          - DomainAdminUser
+          - DomainAdminPassword
+          - MicrosoftADPW
+          - DomainDNSName
+          - DomainNetBIOSName
+      -
+        Label:
+          default: "Instances Type"
+        Parameters:
+          - RDGWInstanceType
+          - ThreatAlertInstanceType
+          - OpsAlertInstanceType
+          - OktaInstanceType
+          - JiraInstanceType
+          - AcunetixInstanceType
+          - BastionInstanceType
+          - RapidSSPInstanceType
+          - SonarQubeInstanceType
+          - SplunkInstanceType
+          - NessusInstanceType
+      -
+        Label:
+          default: "Palo Alto Parameters"
+        Parameters:
+          - VPCAZPalo
+          - VPCPalo
+          - VPCCIDRPalo
+          - SSHLocationP
+          - MgmtSubnetIpBlocksP
+          - UntrustSubnetIpBlocksP
+          - TrustSubnetIpBlocksP
+          - VPNSubnetIpBlocksP
+          - NATGWSubnetIpBlocksP
+          - FWInstanceTypeP
+          - S3BucketNameP
+      -
+        Label:
+          default: "TrendMicro Parameters"
+        Parameters:
+          - QSS3BucketName
+          - QSS3KeyPrefix
+          - DSMS3KeyPrefix
+          - DSMAdminName
+          - DSMAdminPass    
+          - DSMProtectedInstances
+
 Parameters:
 
   VPCSubnetCidrBlock:
@@ -343,25 +419,6 @@ Parameters:
     Type: String
 
 
-  # ThreatSplunkURL:
-  #   ConstraintDescription: Quick Start bucket name can include numbers, lowercase
-  #     letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
-  #     (-).
-  #   Default: cf-templates-z7bsz1az5n1r-us-gov-west-1.s3-us-gov-west-1.amazonaws.com/misc/ThreatSplunknSG.yml
-  #   Description: URL for ThreatAlert, Splunk, and SGs stack
-  #   Type: String  
-
-  RestofAppURL:
-    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
-      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
-      (-).
-    Default: cf-templates-1rufufvsctdq3-us-east-1.s3.amazonaws.com/misc/QuickTest/RestofApps.yml
-    Description: URL for the rest of the other applications
-    Type: String   
-  TAS3BucketRegion:
-    Default: 'us-east-1'
-    Description: 'The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.'
-    Type: String     
   TAS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
     ConstraintDescription: Quick Start bucket name can include numbers, lowercase
@@ -379,10 +436,6 @@ Parameters:
     Description: S3 bucket name ThreatAlert, Splunk, and SGs stack
     Type: String    
 
-  QSS3BucketRegion:
-    Default: 'us-east-1'
-    Description: 'The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.'
-    Type: String
   QSS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
     ConstraintDescription: Quick Start bucket name can include numbers, lowercase
@@ -440,14 +493,6 @@ Parameters:
     - 101-500
     - 501-1000
     - 1001-2000
-
-  PaloURL:
-    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
-      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
-      (-).
-    Default: cf-templates-1rufufvsctdq3-us-east-1.s3.amazonaws.com/misc/QuickTest/PaloAlto.yml
-    Description: URL for Palo Alto Stack
-    Type: String        
 
   VPCAZPalo:
     Description: Choose an Availability Zone for Palo Alto
@@ -550,7 +595,7 @@ Mappings:
     us-east-1:
       AcunetixAMI: ami-0d820e2bd3aeff787
     us-gov-west-1:
-      AcunetixAMI: ami-eccefc8d
+      AcunetixAMI: ami-8d9ca1ec
 
   OpsAlertAMIRegionMap:
     us-east-1:
@@ -568,13 +613,13 @@ Mappings:
     us-east-1:
       OktaAMI: ami-0bbb345ea9f25a858
     us-gov-west-1:
-      OktaAMI: ami-beccfedf
+      OktaAMI: ami-36a09d57
 
   SonarQubeAMIRegionMap:
     us-east-1:
       SonarQubeAMI: ami-00dda516525658d9e
     us-gov-west-1:
-      SonarQubeAMI: ami-d17004b0
+      SonarQubeAMI: ami-09023a498f9603047
 
   # BastionServerAMI:
   #   Description: AMI ID of Bastion Server
@@ -860,7 +905,7 @@ Conditions:
 
   CloudTypeG: !Equals [!Ref TypeOfCloud, 'GovCloud']
 
-  UsingDefBucket: !Equals [!Ref "AWS::Region", TAS3BucketRegion]
+  # UsingDefBucket: !Equals [!Ref "AWS::Region", TAS3BucketRegion]
   
   GovCloudCondition: !Equals [!Ref 'AWS::Region', us-gov-west-1]
 
