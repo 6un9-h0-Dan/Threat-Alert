@@ -18,12 +18,6 @@ Parameters:
     Type: String
   ThreatAlertGSSProfile:
     Type: String
-  RapidAMI: 
-    Type: String
-  RapidType: 
-    Type: String
-  RapidSSPSG: 
-    Type: String
   OpsAMI: 
     Type: String
   OpsType: 
@@ -136,35 +130,7 @@ Resources:
         - Key: Name
           Value: Nessus-Server
 
-  RapidSSPServer:
-    Type: AWS::EC2::Instance
-    Properties:
-      ImageId: !Ref 'RapidAMI'
-      InstanceType: !Ref 'RapidType'
-      KeyName: !Ref 'KeyNameN'
-      IamInstanceProfile: !Ref 'ThreatAlertGSSProfile'
-      SecurityGroupIds:
-        - !Ref 'RapidSSPSG'
-      SubnetId: !Ref 'ThreatAlertSubnetSelection'
-      Tags:
-        - Key: Name
-          Value: RapidSSP-Server
 
-  CPUAlarmRapidSSP:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmDescription: CPU alarm for my instance
-      MetricName: CPUUtilization
-      Namespace: AWS/EC2
-      Statistic: Average
-      Period: '60'
-      EvaluationPeriods: '3'
-      Threshold: '90'
-      ComparisonOperator: GreaterThanThreshold
-      Dimensions:
-      - Name: InstanceId
-        Value:
-          Ref: RapidSSPServer
   CPUAlarmOpsAlert:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -181,23 +147,6 @@ Resources:
         Value:
           Ref: OpsAlertServer
 
-  RecoveryAlarmRapidSSP:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmDescription: Trigger a recovery when instance status check fails for 15
-        consecutive minutes.
-      Namespace: AWS/EC2
-      MetricName: StatusCheckFailed_System
-      Statistic: Minimum
-      Period: '60'
-      EvaluationPeriods: '15'
-      ComparisonOperator: GreaterThanThreshold
-      Threshold: '0'
-      AlarmActions: [ !Sub "arn:aws:automate:${AWS::Region}:ec2:recover" ]
-      Dimensions:
-      - Name: InstanceId
-        Value:
-          Ref: RapidSSPServer
 
   RecoveryAlarmOpsAlert:
     Type: AWS::CloudWatch::Alarm

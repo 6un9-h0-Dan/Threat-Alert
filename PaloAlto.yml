@@ -498,6 +498,36 @@ Resources:
       NetworkInterfaceId: !Ref FW1ManagementNetworkInterface
     DependsOn:
       - FW1VPNNetworkInterface
+  EC2IamRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: fwbootstraps3
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: 's3:getobject'
+                Resource: !Sub 'arn:aws:s3:::${S3BucketName}'
+              - Effect: Allow
+                Action: 's3:listbucket'
+                Resource: !Sub 'arn:aws:s3:::${S3BucketName}'
+  FWInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: /
+      Roles:
+        - !Ref EC2IamRole  
   FW1Instance:
     Type: AWS::EC2::Instance
     Properties:

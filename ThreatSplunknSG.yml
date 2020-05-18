@@ -33,13 +33,11 @@ Parameters:
     Type: String
   DataSubnet2:
     Type: String
-  DSSub1:
-    Type: String
-  DSSub2:
-    Type: String
   DSSubnetOne:
     Type: String
   DSSubnetTwo:
+    Type: String
+  DomainDNSName:
     Type: String
   FedClassification:
     Type: String
@@ -150,7 +148,7 @@ Resources:
   ThreatAlertDHCP:
     Type: AWS::EC2::DHCPOptions
     Properties:
-      DomainName: "threatalert.stackarmor.com"
+      DomainName: !Ref 'DomainDNSName'
       DomainNameServers: !GetAtt ThreatAlertDirectory.DnsIpAddresses
       NtpServers:
         - 129.6.15.28
@@ -424,7 +422,7 @@ Resources:
   ThreatAlertDirectory:
     Type: AWS::DirectoryService::MicrosoftAD
     Properties:
-      Name: "threatalert.stackarmor.com"
+      Name: !Ref 'DomainDNSName'
       Edition: "Standard"
       Password:
         Ref: MicroADPW
@@ -446,7 +444,7 @@ Resources:
           aws:domainJoin:
             properties:
               directoryId: !Ref 'ThreatAlertDirectory'
-              directoryName: "threatalert.stackarmor.com"
+              directoryName: !Ref 'DomainDNSName'
               dnsIpAddresses:  !GetAtt ThreatAlertDirectory.DnsIpAddresses
     DependsOn: ThreatAlertDirectory
   
@@ -1154,25 +1152,7 @@ Resources:
           SourceSecurityGroupId: !Ref 'RemoteDesktopGatewaySG'
           FromPort: '80'
           ToPort: '80'
-  RapidSSPSG:
-    Type: AWS::EC2::SecurityGroup
-    DependsOn: RemoteDesktopGatewaySG
-    Properties:
-      GroupDescription: Splunk Base Security Group
-      GroupName: RapidSSPSecurityGroup
-      VpcId: !Ref 'ThreatAlertVPC'
-      Tags:
-        - Key: Name
-          Value: ThreatAlert-sg
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          SourceSecurityGroupId: !Ref 'RemoteDesktopGatewaySG'
-          FromPort: '22'
-          ToPort: '22'
-        - IpProtocol: tcp
-          SourceSecurityGroupId: !Ref 'RemoteDesktopGatewaySG'
-          FromPort: '443'
-          ToPort: '443'
+
   NessusSG:
     Type: AWS::EC2::SecurityGroup
     DependsOn: RemoteDesktopGatewaySG
@@ -1277,8 +1257,6 @@ Resources:
 Outputs: 
   SonarQubeSG:
     Value: !Ref SonarQubeSG
-  RapidSSPSG:
-    Value: !Ref RapidSSPSG
   OpsAlertSG: 
     Value: !Ref OpsAlertSG
   NessusSG:
