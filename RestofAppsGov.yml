@@ -18,12 +18,6 @@ Parameters:
     Type: String
   ThreatAlertGSSProfile:
     Type: String
-  RapidAMI: 
-    Type: String
-  RapidType: 
-    Type: String
-  RapidSSPSG: 
-    Type: String
   OpsAMI: 
     Type: String
   OpsType: 
@@ -54,6 +48,10 @@ Parameters:
     Type: String
   AcunetixSG:
     Type: String
+  DBISubnet1:
+    Type: String
+  DBISubnet2:
+    Type: String
 
 
 Resources:
@@ -74,6 +72,70 @@ Resources:
       Tags:
         - Key: Name
           Value: SonarQube-Server
+
+  OpsAlertServer:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref 'OpsAMI'
+      InstanceType: !Ref 'OpsType'
+      KeyName: !Ref 'KeyNameN'
+      IamInstanceProfile: !Ref 'ThreatAlertGSSProfile'
+      SecurityGroupIds:
+        - !Ref 'OpsAlertSG'
+      SubnetId: !Ref 'ThreatAlertSubnetSelection'
+      Tags:
+        - Key: Name
+          Value: OpsAlert-Server
+
+
+  NessusServer:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref 'NessusAMIP'
+      InstanceType: !Ref 'NessusType'
+      KeyName: !Ref 'KeyNameN'
+      IamInstanceProfile: !Ref 'ThreatAlertGSSProfile'
+      SecurityGroupIds:
+        - !Ref 'NessusSG'
+      SubnetId: !Ref 'DBISubnet2'
+      Tags:
+        - Key: Name
+          Value: Nessus-Server
+          
+  JiraServer:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref 'JiraAMIP'
+      InstanceType: !Ref 'JiraType'
+      KeyName: !Ref 'KeyNameN'
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: "true"
+          DeviceIndex: "0"
+          GroupSet:
+            - Ref: "JiraSG"
+          SubnetId:
+            Ref: 'DBISubnet2'
+      Tags:
+        - Key: Name
+          Value: Jira-Server
+
+  AcunetixServer:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref 'AcunetixAMIP'
+      InstanceType: !Ref 'AcunetixType'
+      KeyName: !Ref 'KeyNameN'
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: "true"
+          DeviceIndex: "0"
+          GroupSet:
+            - Ref: "AcunetixSG"
+          SubnetId:
+            Ref: 'DBISubnet1'
+      Tags:
+        - Key: Name
+          Value: Acunetix-Server
+          
   RecoveryAlarmSonarQube:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -107,64 +169,6 @@ Resources:
       - Name: InstanceId
         Value:
           Ref: SonarQubeServer
-
-  OpsAlertServer:
-    Type: AWS::EC2::Instance
-    Properties:
-      ImageId: !Ref 'OpsAMI'
-      InstanceType: !Ref 'OpsType'
-      KeyName: !Ref 'KeyNameN'
-      IamInstanceProfile: !Ref 'ThreatAlertGSSProfile'
-      SecurityGroupIds:
-        - !Ref 'OpsAlertSG'
-      SubnetId: !Ref 'ThreatAlertSubnetSelection'
-      Tags:
-        - Key: Name
-          Value: OpsAlert-Server
-
-  NessusServer:
-    Type: AWS::EC2::Instance
-    Properties:
-      ImageId: !Ref 'NessusAMIP'
-      InstanceType: !Ref 'NessusType'
-      KeyName: !Ref 'KeyNameN'
-      IamInstanceProfile: !Ref 'ThreatAlertGSSProfile'
-      SecurityGroupIds:
-        - !Ref 'NessusSG'
-      SubnetId: !Ref 'ThreatAlertSubnetSelection'
-      Tags:
-        - Key: Name
-          Value: Nessus-Server
-
-  RapidSSPServer:
-    Type: AWS::EC2::Instance
-    Properties:
-      ImageId: !Ref 'RapidAMI'
-      InstanceType: !Ref 'RapidType'
-      KeyName: !Ref 'KeyNameN'
-      IamInstanceProfile: !Ref 'ThreatAlertGSSProfile'
-      SecurityGroupIds:
-        - !Ref 'RapidSSPSG'
-      SubnetId: !Ref 'ThreatAlertSubnetSelection'
-      Tags:
-        - Key: Name
-          Value: RapidSSP-Server
-
-  CPUAlarmRapidSSP:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmDescription: CPU alarm for my instance
-      MetricName: CPUUtilization
-      Namespace: AWS/EC2
-      Statistic: Average
-      Period: '60'
-      EvaluationPeriods: '3'
-      Threshold: '90'
-      ComparisonOperator: GreaterThanThreshold
-      Dimensions:
-      - Name: InstanceId
-        Value:
-          Ref: RapidSSPServer
   CPUAlarmOpsAlert:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -180,24 +184,6 @@ Resources:
       - Name: InstanceId
         Value:
           Ref: OpsAlertServer
-
-  RecoveryAlarmRapidSSP:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmDescription: Trigger a recovery when instance status check fails for 15
-        consecutive minutes.
-      Namespace: AWS/EC2
-      MetricName: StatusCheckFailed_System
-      Statistic: Minimum
-      Period: '60'
-      EvaluationPeriods: '15'
-      ComparisonOperator: GreaterThanThreshold
-      Threshold: '0'
-      AlarmActions: [ !Sub "arn:aws-us-gov:automate:${AWS::Region}:ec2:recover" ]
-      Dimensions:
-      - Name: InstanceId
-        Value:
-          Ref: RapidSSPServer
 
   RecoveryAlarmOpsAlert:
     Type: AWS::CloudWatch::Alarm
@@ -217,36 +203,3 @@ Resources:
         Value:
           Ref: OpsAlertServer
 
-  JiraServer:
-    Type: AWS::EC2::Instance
-    Properties:
-      ImageId: !Ref 'JiraAMIP'
-      InstanceType: !Ref 'JiraType'
-      KeyName: !Ref 'KeyNameN'
-      NetworkInterfaces:
-        - AssociatePublicIpAddress: "true"
-          DeviceIndex: "0"
-          GroupSet:
-            - Ref: "JiraSG"
-          SubnetId:
-            Ref: 'ThreatAlertSubnetSelection'
-      Tags:
-        - Key: Name
-          Value: Jira-Server
-
-  AcunetixServer:
-    Type: AWS::EC2::Instance
-    Properties:
-      ImageId: !Ref 'AcunetixAMIP'
-      InstanceType: !Ref 'AcunetixType'
-      KeyName: !Ref 'KeyNameN'
-      NetworkInterfaces:
-        - AssociatePublicIpAddress: "true"
-          DeviceIndex: "0"
-          GroupSet:
-            - Ref: "AcunetixSG"
-          SubnetId:
-            Ref: 'ThreatAlertSubnetSelection'
-      Tags:
-        - Key: Name
-          Value: Acunetix-Server

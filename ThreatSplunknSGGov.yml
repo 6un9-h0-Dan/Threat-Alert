@@ -33,15 +33,13 @@ Parameters:
     Type: String
   DataSubnet2:
     Type: String
-  DSSub1:
-    Type: String
-  DSSub2:
-    Type: String
   DSSubnetOne:
     Type: String
   DSSubnetTwo:
     Type: String
   FedClassification:
+    Type: String
+  DomainDNSName:
     Type: String
 
 
@@ -84,19 +82,6 @@ Mappings:
     us-gov-west-1:
       WS2016FULLBASE: ami-6bd2bd0a
 
-  ThreatAlertAMIRegionMap:
-    AMI:
-      ThreatAlertAMI: Windows_Server-2016-English-Full-Base-2019.02.13
-    us-east-1:
-      ThreatAlertAMI: ami-02a867cfe4470dd2b
-    us-east-2:
-      ThreatAlertAMI: ami-08b4a0f6e106c1dba
-    us-west-1:
-      ThreatAlertAMI: ami-0f825806081c4725c
-    us-west-2:
-      ThreatAlertAMI: ami-0af80d239cc063c12
-    us-gov-west-1:
-      ThreatAlertAMI: ami-5ba3d63a
 
   Region2Principal:
     us-east-1:
@@ -106,6 +91,8 @@ Mappings:
     us-west-1:
       "EC2Principal": "ec2.amazonaws.com"
     us-gov-west-1:
+      "EC2Principal": "ec2.amazonaws.com"
+    us-gov-east-1:
       "EC2Principal": "ec2.amazonaws.com"
 
 
@@ -145,7 +132,7 @@ Resources:
   ThreatAlertDHCP:
     Type: AWS::EC2::DHCPOptions
     Properties:
-      DomainName: "threatalert.stackarmor.com"
+      DomainName: !Ref 'DomainDNSName'
       DomainNameServers: !GetAtt ThreatAlertDirectory.DnsIpAddresses
       NtpServers:
         - 129.6.15.28
@@ -419,7 +406,7 @@ Resources:
   ThreatAlertDirectory:
     Type: AWS::DirectoryService::MicrosoftAD
     Properties:
-      Name: "threatalert.stackarmor.com"
+      Name: !Ref 'DomainDNSName'
       Edition: "Standard"
       Password:
         Ref: MicroADPW
@@ -441,7 +428,7 @@ Resources:
           aws:domainJoin:
             properties:
               directoryId: !Ref 'ThreatAlertDirectory'
-              directoryName: "threatalert.stackarmor.com"
+              directoryName: !Ref 'DomainDNSName'
               dnsIpAddresses:  !GetAtt ThreatAlertDirectory.DnsIpAddresses
     DependsOn: ThreatAlertDirectory
   
@@ -1149,25 +1136,6 @@ Resources:
           SourceSecurityGroupId: !Ref 'RemoteDesktopGatewaySG'
           FromPort: '80'
           ToPort: '80'
-  RapidSSPSG:
-    Type: AWS::EC2::SecurityGroup
-    DependsOn: RemoteDesktopGatewaySG
-    Properties:
-      GroupDescription: Splunk Base Security Group
-      GroupName: RapidSSPSecurityGroup
-      VpcId: !Ref 'ThreatAlertVPC'
-      Tags:
-        - Key: Name
-          Value: ThreatAlert-sg
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          SourceSecurityGroupId: !Ref 'RemoteDesktopGatewaySG'
-          FromPort: '22'
-          ToPort: '22'
-        - IpProtocol: tcp
-          SourceSecurityGroupId: !Ref 'RemoteDesktopGatewaySG'
-          FromPort: '443'
-          ToPort: '443'
   NessusSG:
     Type: AWS::EC2::SecurityGroup
     DependsOn: RemoteDesktopGatewaySG
@@ -1272,8 +1240,6 @@ Resources:
 Outputs: 
   SonarQubeSG:
     Value: !Ref SonarQubeSG
-  RapidSSPSG:
-    Value: !Ref RapidSSPSG
   OpsAlertSG: 
     Value: !Ref OpsAlertSG
   NessusSG:

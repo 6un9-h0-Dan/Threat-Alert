@@ -36,7 +36,9 @@ Mappings:
     us-west-2:
       Bundle2: ami-02ed3f184712f7e2c
     us-gov-west-1:
-      Bundle2: ami-62aa8503
+      Bundle2: ami-04d6bb561643dd149
+    us-gov-east-1:
+      Bundle2: ami-0f477955344806aea
 
   Constants:
     S3URL:
@@ -501,10 +503,41 @@ Resources:
       NetworkInterfaceId: !Ref FW1ManagementNetworkInterface
     DependsOn:
       - FW1VPNNetworkInterface
+  EC2IamRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: fwbootstraps3
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: 's3:getobject'
+                Resource: !Sub 'arn:aws-us-gov:s3:::${S3BucketName}'
+              - Effect: Allow
+                Action: 's3:listbucket'
+                Resource: !Sub 'arn:aws-us-gov:s3:::${S3BucketName}'
+  FWInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: /
+      Roles:
+        - !Ref EC2IamRole  
   FW1Instance:
     Type: AWS::EC2::Instance
     Properties:
       DisableApiTermination: 'false'
+      IamInstanceProfile: !Ref FWInstanceProfile
       InstanceInitiatedShutdownBehavior: stop
       EbsOptimized: 'true'
       ImageId: !FindInMap
