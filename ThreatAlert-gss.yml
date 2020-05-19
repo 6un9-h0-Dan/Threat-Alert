@@ -10,7 +10,6 @@ Metadata:
         Parameters:
           - VPCSubnetCidrBlock
           - Classification
-          - TypeOfCloud
           - AvailabilityZones
           - NumberOfAZs
           - SubnetCidrBlock1
@@ -94,14 +93,6 @@ Parameters:
       - FedRAMP-Low
       - FedRAMP-Moderate
       - FedRAMP-High
-
-  TypeOfCloud:
-    Description: Is this Commercial Cloud or GovCloud?
-    Type: String
-    Default: Commercial-Cloud
-    AllowedValues: 
-      - Commercial-Cloud
-      - GovCloud
 
   AvailabilityZones:
     Description: 'List of Availability Zones to use for the subnets in the VPC. Note:
@@ -409,14 +400,6 @@ Parameters:
     Default: threatalertgss
     Description: S3 bucket name ThreatAlert, Splunk, and SGs stack
     Type: String  
-  GTAS3BucketName:
-    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
-    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
-      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
-      (-).
-    Default: marketplace
-    Description: S3 bucket name ThreatAlert, Splunk, and SGs stack
-    Type: String    
 
   QSS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
@@ -623,12 +606,11 @@ Resources:
 
   ThreatSplunknSGsStack:
     Type: AWS::CloudFormation::Stack  
-    Condition: CloudTypeC
     Properties:
       TemplateURL: 
         !Sub 
-          - 'https://${S3Bucket}.s3.amazonaws.com/ThreatSplunknSG.yml'
-          - S3Bucket: !Ref 'TAS3BucketName'
+          - https://${TAS3BucketName}.${QSS3Region}.amazonaws.com/ThreatSplunknSG.yml
+          - QSS3Region: !If ["GovCloudCondition", "s3-us-gov-west-1", "s3"]
       Parameters:
         AvailabilityZones: !Join
           - ','
@@ -650,45 +632,19 @@ Resources:
         DSSubnetOne: !Ref 'DSSubnet1'
         DSSubnetTwo: !Ref 'DSSubnet2'
         FedClassification: !Ref Classification
-        DomainDNSName: !Ref DomainDNSName        
-
-  ThreatSplunknSGsStackG:
-    Type: AWS::CloudFormation::Stack  
-    Condition: CloudTypeG
-    Properties:
-      TemplateURL: 
-        !Sub 
-          - 'https://${S3BucketG}.s3-${S3RegionG}.amazonaws.com/ThreatSplunknSGGov.yml'
-          - S3BucketG: !Ref GTAS3BucketName
-            S3RegionG: !Ref 'AWS::Region'
-      Parameters:
-        AvailabilityZones: !Join
-          - ','
-          - !Ref 'AvailabilityZones'
-        KeyNameN: !Ref 'KeyPair'
-        VPCCidr: !Ref 'VPCSubnetCidrBlock'
-        SplunkType: !Ref 'SplunkInstanceType'
-        ThreatType: !Ref 'ThreatAlertInstanceType'
-        ThreatImage: !FindInMap [ThreatAlertAMIRegionMap, !Ref "AWS::Region", ThreatAlertAMI] 
-        SplunkImage: !FindInMap [SplunkAMIRegionMap, !Ref "AWS::Region", SplunkAMI]
-        BastionImage: !FindInMap [BastionAMIRegionMap, !Ref "AWS::Region", BastionServerAMI]
-        BastionType: !Ref BastionInstanceType
-        CidrBlock1: !Ref 'SubnetCidrBlock1'
-        CidrBlock2: !Ref 'SubnetCidrBlock2'
-        MicroADPW: !Ref 'MicrosoftADPW'
-        DataSubnet1: !Ref 'AppsSubnet1'
-        DataSubnet2: !Ref 'AppsSubnet2'
-        RemGate: !Ref 'RDGWCIDR'
-        DSSubnetOne: !Ref 'DSSubnet1'
-        DSSubnetTwo: !Ref 'DSSubnet2'
-        FedClassification: !Ref Classification
         DomainDNSName: !Ref DomainDNSName
-
+            
   DSMMaster:
     Type: AWS::CloudFormation::Stack
-    Condition: CloudTypeC
     Properties:
-      TemplateURL: https://aws-quickstart.s3-us-gov-west-1.amazonaws.com/quickstart-trendmicro-deepsecurity/templates/quickstart/trendmicro-deepsecurity-master.template
+      TemplateURL:
+        Fn::Sub:
+        - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${DSMS3KeyPrefix}templates/quickstart/trendmicro-deepsecurity-master.template
+        - QSS3Region:
+            !If
+            - GovCloudCondition
+            - s3-us-gov-west-1
+            - s3
       Parameters:
         AWSKeyPairName: !Ref KeyPair
         AWSVPC: !GetAtt ThreatSplunknSGsStack.Outputs.ThreatAlertVPC
@@ -701,38 +657,13 @@ Resources:
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref DSMS3KeyPrefix
 
-  DSMMasterG:
-    Type: AWS::CloudFormation::Stack
-    Condition: CloudTypeG
-    Properties:
-      TemplateURL:
-        Fn::Sub:
-        - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${DSMS3KeyPrefix}templates/quickstart/trendmicro-deepsecurity-master.template
-        - QSS3Region:
-            !If
-            - GovCloudCondition
-            - s3-us-gov-west-1
-            - s3
-      Parameters:
-        AWSKeyPairName: !Ref KeyPair
-        AWSVPC: !GetAtt ThreatSplunknSGsStackG.Outputs.ThreatAlertVPC
-        DeepSecuritySubnet: !GetAtt ThreatSplunknSGsStackG.Outputs.ThreatAlertSN1
-        DeepSecurityAdminName: !Ref DSMAdminName
-        DeepSecurityAdminPass: !Ref DSMAdminPass
-        DatabaseSubnet1: !GetAtt ThreatSplunknSGsStackG.Outputs.DirectorySubnet1
-        DatabaseSubnet2: !GetAtt ThreatSplunknSGsStackG.Outputs.DirectorySubnet2
-        ProtectedInstances: !Ref DSMProtectedInstances
-        QSS3BucketName: !Ref QSS3BucketName
-        QSS3KeyPrefix: !Ref DSMS3KeyPrefix
-
   PaloAltoStack:
     Type: AWS::CloudFormation::Stack  
-    Condition: CloudTypeC
     Properties:
       TemplateURL: 
         !Sub 
-          - 'https://${S3Bucket}.s3.amazonaws.com/PaloAlto.yml'
-          - S3Bucket: !Ref TAS3BucketName
+          - 'https://${TAS3BucketName}.${QSS3Region}.amazonaws.com/PaloAlto.yml'
+          - QSS3Region: !If ["GovCloudCondition", "s3-us-gov-west-1", "s3"]
       Parameters:
         VpcAz: !Ref 'VPCAZPalo'
         KeyName: !Ref 'KeyPair'    
@@ -747,37 +678,13 @@ Resources:
         FWInstanceType: !Ref 'FWInstanceTypeP'
         S3BucketName: !Ref 'S3BucketNameP'
 
-  PaloAltoStackG:
-    Type: AWS::CloudFormation::Stack  
-    Condition: CloudTypeG
-    Properties:
-      TemplateURL: 
-        !Sub 
-          - 'https://${S3BucketG}.s3-${S3RegionG}.amazonaws.com/PaloAltoGov.yml'
-          - S3BucketG: !Ref GTAS3BucketName
-            S3RegionG: !Ref 'AWS::Region'
-      Parameters:
-        VpcAz: !Ref 'VPCAZPalo'
-        KeyName: !Ref 'KeyPair'    
-        VPCName: !Ref 'VPCPalo'
-        VPCCIDR: !Ref 'VPCCIDRPalo'
-        SSHLocation: !Ref 'SSHLocationP'
-        MgmtSubnetIpBlocks: !Ref 'MgmtSubnetIpBlocksP'
-        UntrustSubnetIpBlocks: !Ref 'UntrustSubnetIpBlocksP'
-        TrustSubnetIpBlocks: !Ref 'TrustSubnetIpBlocksP'
-        VPNSubnetIpBlocks: !Ref 'VPNSubnetIpBlocksP'
-        NATGWSubnetIpBlocks: !Ref 'NATGWSubnetIpBlocksP'
-        FWInstanceType: !Ref 'FWInstanceTypeP'
-        S3BucketName: !Ref 'S3BucketNameP'
-
-  RestofAppStack:
+  TASecurityServersStack:
     Type: AWS::CloudFormation::Stack 
-    Condition: CloudTypeC
     Properties:
       TemplateURL: 
         !Sub 
-          - 'https://${S3Bucket}.s3.amazonaws.com/RestofApps.yml'
-          - S3Bucket: !Ref TAS3BucketName
+          - 'https://${TAS3BucketName}.${QSS3Region}.amazonaws.com/TASecurityServers.yml'
+          - QSS3Region: !If ["GovCloudCondition", "s3-us-gov-west-1", "s3"]
       Parameters: 
         AvailabilityZones: !Join
           - ','
@@ -808,58 +715,7 @@ Resources:
         ThreatAlertSubnetSelection: 
           !GetAtt ThreatSplunknSGsStack.Outputs.ThreatAlertSubnetSelection
 
-  RestofAppStackG:
-    Type: AWS::CloudFormation::Stack 
-    Condition: CloudTypeG
-    Properties:
-      TemplateURL: 
-        !Sub 
-          - 'https://${S3BucketG}.s3-${S3RegionG}.amazonaws.com/RestofAppsGov.yml'
-          - S3BucketG: !Ref GTAS3BucketName
-            S3RegionG: !Ref 'AWS::Region'
-      Parameters: 
-        AvailabilityZones: !Join
-          - ','
-          - !Ref 'AvailabilityZones'      
-        SonarAMI: !FindInMap [SonarQubeAMIRegionMap, !Ref "AWS::Region", SonarQubeAMI] 
-        SonarType: !Ref SonarQubeInstanceType
-        VPCCidr: !Ref 'VPCSubnetCidrBlock'
-        OpsAMI: !FindInMap [OpsAlertAMIRegionMap, !Ref "AWS::Region", OpsAlertAMI]
-        OpsType: !Ref OpsAlertInstanceType
-        KeyNameN: !Ref 'KeyPair'
-        NessusAMIP: !FindInMap [NessusAMIRegionMap, !Ref "AWS::Region", NessusAMI]
-        NessusType: !Ref NessusInstanceType
-        SonarQubeSG: !GetAtt ThreatSplunknSGsStackG.Outputs.SonarQubeSG
-        OpsAlertSG: !GetAtt ThreatSplunknSGsStackG.Outputs.OpsAlertSG
-        NessusSG: !GetAtt ThreatSplunknSGsStackG.Outputs.NessusSG
-        OktaSG: !GetAtt ThreatSplunknSGsStackG.Outputs.OktaSG
-        JiraSG: !GetAtt ThreatSplunknSGsStackG.Outputs.JiraSG
-        AcunetixSG: !GetAtt ThreatSplunknSGsStackG.Outputs.AcunetixSG
-        DBISubnet1: !GetAtt ThreatSplunknSGsStackG.Outputs.DBISubnet1
-        DBISubnet2: !GetAtt ThreatSplunknSGsStackG.Outputs.DBISubnet2        
-        JiraAMIP: !FindInMap [JiraAMIRegionMap, !Ref "AWS::Region", JiraAMI] 
-        JiraType: !Ref JiraInstanceType
-        OktaAMIP: !FindInMap [OktaAMIRegionMap, !Ref "AWS::Region", OktaAMI] 
-        OktaType: !Ref OktaInstanceType
-        AcunetixAMIP: !FindInMap [AcunetixAMIRegionMap, !Ref "AWS::Region", AcunetixAMI] 
-        AcunetixType: !Ref AcunetixInstanceType
-        ThreatAlertGSSProfile: !GetAtt ThreatSplunknSGsStackG.Outputs.ThreatAlertGSSProfile
-        ThreatAlertSubnetSelection: 
-          !GetAtt ThreatSplunknSGsStackG.Outputs.ThreatAlertSubnetSelection
 
 Conditions:
-  CloudTypeC: !Equals [!Ref TypeOfCloud, 'Commercial-Cloud']
-
-  CloudTypeG: !Equals [!Ref TypeOfCloud, 'GovCloud']
-
   
   GovCloudCondition: !Equals [!Ref 'AWS::Region', us-gov-west-1]
-
-  # GovCloudCondition:
-  #   !Or 
-  #   - !Equals 
-  #     - !Ref AWS::Region
-  #     - us-gov-west-1
-  #   - !Equals 
-  #     - !Ref AWS::Region
-  #     - us-gov-east-1

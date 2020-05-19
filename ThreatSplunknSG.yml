@@ -42,8 +42,6 @@ Parameters:
   FedClassification:
     Type: String
 
-
-
 Mappings:
 
   AWSAMIRegionMap:
@@ -134,7 +132,7 @@ Resources:
             Action:
               - sts:AssumeRole
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonEC2RoleforSSM'
       RoleName: DirectoryEC2SSMRole
 
   ThreatAlertVPC:
@@ -177,7 +175,7 @@ Resources:
               Action:
                 - sts:AssumeRole
         ManagedPolicyArns:
-          - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+          - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonEC2RoleforSSM
         RoleName: DirectoryEC2SSMRole
 
   BastionServer:
@@ -540,7 +538,7 @@ Resources:
             Action:
               - sts:AssumeRole
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonEC2RoleforSSM
       Policies:
         - PolicyName: sata-splunk-ec2-policy
           PolicyDocument:
@@ -835,7 +833,7 @@ Resources:
                 - Region2Principal
                 - !Ref 'AWS::Region'
                 - EC2Principal
-              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:role/ThreatAlertEC2Role'
+              AWS: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/ThreatAlertEC2Role'
             Action:
               - sts:AssumeRole
       Path: /
@@ -1023,7 +1021,7 @@ Resources:
       EvaluationPeriods: '15'
       ComparisonOperator: GreaterThanThreshold
       Threshold: '0'
-      AlarmActions: [ !Sub "arn:aws:automate:${AWS::Region}:ec2:recover" ]
+      AlarmActions: [ !Sub "arn:${AWS::Partition}:automate:${AWS::Region}:ec2:recover" ]
       Dimensions:
       - Name: InstanceId
         Value:
@@ -1042,7 +1040,7 @@ Resources:
       EvaluationPeriods: '15'
       ComparisonOperator: GreaterThanThreshold
       Threshold: '0'
-      AlarmActions: [ !Sub "arn:aws:automate:${AWS::Region}:ec2:recover" ]
+      AlarmActions: [ !Sub "arn:${AWS::Partition}:automate:${AWS::Region}:ec2:recover" ]
       Dimensions:
       - Name: InstanceId
         Value:
@@ -1091,7 +1089,7 @@ Resources:
       EvaluationPeriods: '15'
       ComparisonOperator: GreaterThanThreshold
       Threshold: '1'
-      AlarmActions: [ !Sub "arn:aws:automate:${AWS::Region}:ec2:recover" ]
+      AlarmActions: [ !Sub "arn:${AWS::Partition}:automate:${AWS::Region}:ec2:recover" ]
       Dimensions:
       - Name: InstanceId
         Value:
@@ -1250,10 +1248,10 @@ Resources:
           FromPort: '8090'
           ToPort: '8090'         
 
-  EnableGuardduty: 
-    Type: AWS::GuardDuty::Detector
-    Properties: 
-      Enable: True
+  # EnableGuardduty: 
+  #   Type: AWS::GuardDuty::Detector
+  #   Properties: 
+  #     Enable: True
 Outputs: 
   SonarQubeSG:
     Value: !Ref SonarQubeSG

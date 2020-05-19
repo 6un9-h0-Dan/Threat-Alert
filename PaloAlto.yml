@@ -35,6 +35,10 @@ Mappings:
       Bundle2: ami-02866ffea0c6ca92b
     us-west-2:
       Bundle2: ami-02ed3f184712f7e2c
+    us-gov-west-1:
+      Bundle2: ami-04d6bb561643dd149
+    us-gov-east-1:
+      Bundle2: ami-0f477955344806aea      
   Constants:
     S3URL:
       URL1: https://s3.amazonaws.com
@@ -228,7 +232,7 @@ Resources:
           - Sid: Enable IAM User Permissions
             Effect: Allow
             Principal:
-              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+              AWS: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:root'
             Action: 'kms:*'
             Resource: '*'
   KMSAlias:
@@ -518,10 +522,10 @@ Resources:
             Statement:
               - Effect: Allow
                 Action: 's3:getobject'
-                Resource: !Sub 'arn:aws:s3:::${S3BucketName}'
+                Resource: !Sub 'arn:${AWS::Partition}:s3:::${S3BucketName}'
               - Effect: Allow
                 Action: 's3:listbucket'
-                Resource: !Sub 'arn:aws:s3:::${S3BucketName}'
+                Resource: !Sub 'arn:${AWS::Partition}:s3:::${S3BucketName}'
   FWInstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
