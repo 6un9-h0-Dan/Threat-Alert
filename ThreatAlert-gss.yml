@@ -695,8 +695,8 @@ Resources:
         DeepSecuritySubnet: !GetAtt ThreatSplunknSGsStack.Outputs.ThreatAlertSN1
         DeepSecurityAdminName: !Ref DSMAdminName
         DeepSecurityAdminPass: !Ref DSMAdminPass
-        DatabaseSubnet1: !GetAtt ThreatSplunknSGsStack.Outputs.DBISubnet1
-        DatabaseSubnet2: !GetAtt ThreatSplunknSGsStack.Outputs.DBISubnet2
+        DatabaseSubnet1: !GetAtt ThreatSplunknSGsStack.Outputs.DirectorySubnet1
+        DatabaseSubnet2: !GetAtt ThreatSplunknSGsStack.Outputs.DirectorySubnet2
         ProtectedInstances: !Ref DSMProtectedInstances
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref DSMS3KeyPrefix
@@ -719,8 +719,8 @@ Resources:
         DeepSecuritySubnet: !GetAtt ThreatSplunknSGsStackG.Outputs.ThreatAlertSN1
         DeepSecurityAdminName: !Ref DSMAdminName
         DeepSecurityAdminPass: !Ref DSMAdminPass
-        DatabaseSubnet1: !GetAtt ThreatSplunknSGsStackG.Outputs.DBISubnet1
-        DatabaseSubnet2: !GetAtt ThreatSplunknSGsStackG.Outputs.DBISubnet2
+        DatabaseSubnet1: !GetAtt ThreatSplunknSGsStackG.Outputs.DirectorySubnet1
+        DatabaseSubnet2: !GetAtt ThreatSplunknSGsStackG.Outputs.DirectorySubnet2
         ProtectedInstances: !Ref DSMProtectedInstances
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref DSMS3KeyPrefix

@@ -1277,6 +1277,10 @@ Outputs:
     Value: !Ref DBISubnet1
   DBISubnet2: 
     Value: !Ref DBISubnet2  
+  DirectorySubnet1:
+    Value: !Ref DirectorySubnet1
+  DirectorySubnet2:
+    Value: !Ref DirectorySubnet2
   ThreatAlertSN1:
     Value: !Ref ThreatAlertSN1
 

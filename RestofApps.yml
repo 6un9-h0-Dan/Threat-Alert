@@ -48,6 +48,10 @@ Parameters:
     Type: String
   AcunetixSG:
     Type: String
+  DBISubnet1:
+    Type: String
+  DBISubnet2: 
+    Type: String
 
 
 Resources:
