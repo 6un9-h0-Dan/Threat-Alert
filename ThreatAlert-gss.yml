@@ -162,14 +162,14 @@ Parameters:
       selections in the list of Availability Zones parameter.
     Type: String
 
-  SubnetCidrBlock1: #Splunk and TrendMicroDSM
+  SubnetCidrBlock1:
     Description: Enter Public Subnet 1 CIDR Block.
     Type: String
     Default: 10.0.0.0/26
     MinLength: '10'
     MaxLength: '18'
 
-  SubnetCidrBlock2: #ThreatAlert and OpsAlert
+  SubnetCidrBlock2:
     Description: Enter Private Subnet 1 CIDR Block.
     Type: String
     Default: 10.0.0.64/26

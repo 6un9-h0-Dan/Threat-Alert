@@ -68,7 +68,7 @@ Resources:
           GroupSet:
             - Ref: "SonarQubeSG"
           SubnetId:
-            Ref: 'ThreatAlertSubnetSelection'
+            Ref: 'DBISubnet2'
       Tags:
         - Key: Name
           Value: SonarQube-Server
@@ -115,7 +115,7 @@ Resources:
       IamInstanceProfile: !Ref 'ThreatAlertGSSProfile'
       SecurityGroupIds:
         - !Ref 'OpsAlertSG'
-      SubnetId: !Ref 'ThreatAlertSubnetSelection'
+      SubnetId: !Ref 'DBISubnet1'
       Tags:
         - Key: Name
           Value: OpsAlert-Server
