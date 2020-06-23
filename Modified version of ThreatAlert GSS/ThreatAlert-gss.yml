@@ -522,7 +522,7 @@ Parameters:
 Mappings:
   ThreatAlertAMIRegionMap:
     us-east-1:
-      ThreatAlertAMI: ami-042079a2848d953d1
+      ThreatAlertAMI: ami-08f47671c491b6d1d
     us-east-2:
       ThreatAlertAMI: ami-08b4a0f6e106c1dba
     us-west-1:
