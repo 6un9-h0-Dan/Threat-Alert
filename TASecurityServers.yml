@@ -62,13 +62,9 @@ Resources:
       ImageId: !Ref 'SonarAMI'
       InstanceType: !Ref 'SonarType'
       KeyName: !Ref 'KeyNameN'
-      NetworkInterfaces:
-        - AssociatePublicIpAddress: "true"
-          DeviceIndex: "0"
-          GroupSet:
-            - Ref: "SonarQubeSG"
-          SubnetId:
-            Ref: 'DBISubnet2'
+      SubnetId: !Ref 'DBISubnet2'
+      SecurityGroupIds: 
+        - !Ref 'JiraSG'
       Tags:
         - Key: Name
           Value: SonarQube-Server
@@ -112,7 +108,6 @@ Resources:
       ImageId: !Ref 'OpsAMI'
       InstanceType: !Ref 'OpsType'
       KeyName: !Ref 'KeyNameN'
-      IamInstanceProfile: !Ref 'ThreatAlertGSSProfile'
       SecurityGroupIds:
         - !Ref 'OpsAlertSG'
       SubnetId: !Ref 'DBISubnet1'
@@ -126,7 +121,6 @@ Resources:
       ImageId: !Ref 'NessusAMIP'
       InstanceType: !Ref 'NessusType'
       KeyName: !Ref 'KeyNameN'
-      IamInstanceProfile: !Ref 'ThreatAlertGSSProfile'
       SecurityGroupIds:
         - !Ref 'NessusSG'
       SubnetId: !Ref 'DBISubnet2'
@@ -176,13 +170,9 @@ Resources:
       ImageId: !Ref 'JiraAMIP'
       InstanceType: !Ref 'JiraType'
       KeyName: !Ref 'KeyNameN'
-      NetworkInterfaces:
-        - AssociatePublicIpAddress: "true"
-          DeviceIndex: "0"
-          GroupSet:
-            - Ref: "JiraSG"
-          SubnetId:
-            Ref: 'DBISubnet2'
+      SubnetId: !Ref 'DBISubnet2'
+      SecurityGroupIds: 
+        - !Ref 'JiraSG'
       Tags:
         - Key: Name
           Value: Jira-Server
@@ -194,12 +184,9 @@ Resources:
       InstanceType: !Ref 'AcunetixType'
       KeyName: !Ref 'KeyNameN'
       NetworkInterfaces:
-        - AssociatePublicIpAddress: "true"
-          DeviceIndex: "0"
-          GroupSet:
-            - Ref: "AcunetixSG"
-          SubnetId:
-            Ref: 'DBISubnet1'
+      SubnetId: !Ref 'DBISubnet1'
+      SecurityGroupIds: 
+        - !Ref 'AcunetixSG'
       Tags:
         - Key: Name
           Value: Acunetix-Server

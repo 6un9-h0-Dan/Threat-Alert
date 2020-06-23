@@ -522,7 +522,7 @@ Parameters:
 Mappings:
   ThreatAlertAMIRegionMap:
     us-east-1:
-      ThreatAlertAMI: ami-0d820e2bd3aeff787
+      ThreatAlertAMI: ami-042079a2848d953d1
     us-east-2:
       ThreatAlertAMI: ami-08b4a0f6e106c1dba
     us-west-1:
@@ -553,7 +553,7 @@ Mappings:
 
   JiraAMIRegionMap:
     us-east-1:
-      JiraAMI: ami-0a06cd18e7d267534
+      JiraAMI: ami-0f88ac0c74658348a
     us-gov-west-1:
       JiraAMI: ami-03b08e4346affe05d
     us-gov-east-1:
