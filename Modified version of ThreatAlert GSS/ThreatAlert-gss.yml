@@ -562,7 +562,7 @@ Mappings:
 
   AcunetixAMIRegionMap:
     us-east-1:
-      AcunetixAMI: ami-0d820e2bd3aeff787
+      AcunetixAMI: ami-0be65db98d77266a0
     us-gov-west-1:
       AcunetixAMI: ami-8d9ca1ec
     us-gov-east-1:
