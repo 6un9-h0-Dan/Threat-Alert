@@ -102,6 +102,19 @@ Resources:
   #       Value:
   #         Ref: SonarQubeServer
 
+  OktaServer: 
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref 'OktaAMIP'
+      InstanceType: !Ref 'OktaType'
+      KeyName: !Ref 'KeyNameN'
+      SecurityGroupIds:
+        - !Ref 'OktaSG'
+      SubnetId: !Ref 'DBISubnet1'
+      Tags:
+        - Key: Name
+          Value: Okta-Server 
+
   OpsAlertServer:
     Type: AWS::EC2::Instance
     Properties:
