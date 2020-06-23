@@ -183,7 +183,6 @@ Resources:
       ImageId: !Ref 'AcunetixAMIP'
       InstanceType: !Ref 'AcunetixType'
       KeyName: !Ref 'KeyNameN'
-      NetworkInterfaces:
       SubnetId: !Ref 'DBISubnet1'
       SecurityGroupIds: 
         - !Ref 'AcunetixSG'
