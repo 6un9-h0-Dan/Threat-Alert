@@ -553,7 +553,7 @@ Mappings:
 
   JiraAMIRegionMap:
     us-east-1:
-      JiraAMI: ami-0f88ac0c74658348a
+      JiraAMI: ami-00471c9da5a50272b
     us-gov-west-1:
       JiraAMI: ami-03b08e4346affe05d
     us-gov-east-1:
