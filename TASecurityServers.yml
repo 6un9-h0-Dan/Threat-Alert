@@ -14,7 +14,9 @@ Parameters:
     Type: String 
   KeyNameN: 
     Type: "AWS::EC2::KeyPair::KeyName"
-  ThreatAlertSubnetSelection:
+  ThreatAlertSN1:
+    Type: String    
+  ThreatAlertSN2:
     Type: String
   ThreatAlertGSSProfile:
     Type: String
@@ -62,9 +64,13 @@ Resources:
       ImageId: !Ref 'SonarAMI'
       InstanceType: !Ref 'SonarType'
       KeyName: !Ref 'KeyNameN'
-      SubnetId: !Ref 'DBISubnet2'
+      SubnetId: !Ref 'ThreatAlertSN1'
       SecurityGroupIds: 
         - !Ref 'JiraSG'
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            Encrypted: True     
       Tags:
         - Key: Name
           Value: SonarQube-Server
@@ -110,7 +116,15 @@ Resources:
       KeyName: !Ref 'KeyNameN'
       SecurityGroupIds:
         - !Ref 'OktaSG'
-      SubnetId: !Ref 'DBISubnet1'
+      SubnetId: !Ref 'ThreatAlertSN1'
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            Encrypted: True     
+        - DeviceName: /dev/xvda
+          Ebs:
+            Encrypted: True
+            VolumeSize: 50
       Tags:
         - Key: Name
           Value: Okta-Server 
@@ -123,7 +137,11 @@ Resources:
       KeyName: !Ref 'KeyNameN'
       SecurityGroupIds:
         - !Ref 'OpsAlertSG'
-      SubnetId: !Ref 'DBISubnet1'
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            Encrypted: True     
+      SubnetId: !Ref 'ThreatAlertSN2'
       Tags:
         - Key: Name
           Value: OpsAlert-Server
@@ -136,7 +154,11 @@ Resources:
       KeyName: !Ref 'KeyNameN'
       SecurityGroupIds:
         - !Ref 'NessusSG'
-      SubnetId: !Ref 'DBISubnet2'
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            Encrypted: True     
+      SubnetId: !Ref 'ThreatAlertSN2'
       Tags:
         - Key: Name
           Value: Nessus-Server
@@ -183,7 +205,15 @@ Resources:
       ImageId: !Ref 'JiraAMIP'
       InstanceType: !Ref 'JiraType'
       KeyName: !Ref 'KeyNameN'
-      SubnetId: !Ref 'DBISubnet2'
+      SubnetId: !Ref 'ThreatAlertSN2'
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            Encrypted: True     
+        - DeviceName: /dev/xvda
+          Ebs:
+            Encrypted: True
+            VolumeSize: 50
       SecurityGroupIds: 
         - !Ref 'JiraSG'
       Tags:
@@ -196,7 +226,15 @@ Resources:
       ImageId: !Ref 'AcunetixAMIP'
       InstanceType: !Ref 'AcunetixType'
       KeyName: !Ref 'KeyNameN'
-      SubnetId: !Ref 'DBISubnet1'
+      SubnetId: !Ref 'ThreatAlertSN1'
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            Encrypted: True     
+        - DeviceName: /dev/xvda
+          Ebs:
+            Encrypted: True
+            VolumeSize: 50
       SecurityGroupIds: 
         - !Ref 'AcunetixSG'
       Tags:
