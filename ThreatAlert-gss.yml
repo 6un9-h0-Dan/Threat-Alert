@@ -163,21 +163,21 @@ Parameters:
     Type: String
 
   SubnetCidrBlock1:
-    Description: Enter Public Subnet 1 CIDR Block.
+    Description: Enter Subnet 1 CIDR Block.
     Type: String
     Default: 10.0.0.0/26
     MinLength: '10'
     MaxLength: '18'
 
   SubnetCidrBlock2:
-    Description: Enter Private Subnet 1 CIDR Block.
+    Description: Enter Subnet 2 CIDR Block.
     Type: String
     Default: 10.0.0.64/26
     MinLength: '10'
     MaxLength: '18'
 
-  AppsSubnet1:
-    Description: Select a private subnet for the applications.  Must be a private
+  DBSubnet1:
+    Description: Select a private subnet for the RDS.  Must be a private
       subnet contained the in VPC chosen above.
     Type: String
     Default: 10.0.0.128/27
@@ -186,8 +186,8 @@ Parameters:
     ConstraintDescription: RDS Subnet Groups must be comprised of 2 subnets in seperate
       availability zones within the specified VPC for deploying this template
 
-  AppsSubnet2:
-    Description: Select a second private subnet for the applications.  Must be a private
+  DBSubnet2:
+    Description: Select a second private subnet for the RDS.  Must be a private
       subnet contained the in VPC chosen above.
     Type: String
     Default: 10.0.0.160/27
@@ -196,7 +196,7 @@ Parameters:
     ConstraintDescription: RDS Subnet Groups must be comprised of 2 subnets in seperate availability zones within the specified VPC for deploying this template
 
   DSSubnet1:
-    Description: Select a private subnet for the RDS database.  Must be a private
+    Description: Select a private subnet. Must be a private
       subnet contained the in VPC chosen above. 
     Type: String
     Default: 10.0.0.192/27
@@ -205,7 +205,7 @@ Parameters:
     ConstraintDescription: Directory Service Subnet Group must be comprised of 2 subnets in seperate
       availability zones within the specified VPC for deploying this template
   DSSubnet2:
-    Description: Select a second private subnet for the RDS database.  Must be a private
+    Description: Select a second private subnet.  Must be a private
       subnet contained the in VPC chosen above.
     Type: String
     Default: 10.0.0.224/27
@@ -553,7 +553,7 @@ Mappings:
 
   JiraAMIRegionMap:
     us-east-1:
-      JiraAMI: ami-0f88ac0c74658348a
+      JiraAMI: ami-00471c9da5a50272b
     us-gov-west-1:
       JiraAMI: ami-03b08e4346affe05d
     us-gov-east-1:
@@ -626,8 +626,8 @@ Resources:
         CidrBlock1: !Ref 'SubnetCidrBlock1'
         CidrBlock2: !Ref 'SubnetCidrBlock2'
         MicroADPW: !Ref 'MicrosoftADPW'
-        DataSubnet1: !Ref 'AppsSubnet1'
-        DataSubnet2: !Ref 'AppsSubnet2'
+        DataSubnet1: !Ref 'DBSubnet1'
+        DataSubnet2: !Ref 'DBSubnet2'
         RemGate: !Ref 'RDGWCIDR'
         DSSubnetOne: !Ref 'DSSubnet1'
         DSSubnetTwo: !Ref 'DSSubnet2'
@@ -712,8 +712,8 @@ Resources:
         AcunetixAMIP: !FindInMap [AcunetixAMIRegionMap, !Ref "AWS::Region", AcunetixAMI] 
         AcunetixType: !Ref AcunetixInstanceType
         ThreatAlertGSSProfile: !GetAtt ThreatSplunknSGsStack.Outputs.ThreatAlertGSSProfile
-        ThreatAlertSubnetSelection: 
-          !GetAtt ThreatSplunknSGsStack.Outputs.ThreatAlertSubnetSelection
+        ThreatAlertSN1: !GetAtt ThreatSplunknSGsStack.Outputs.ThreatAlertSN1        
+        ThreatAlertSN2: !GetAtt ThreatSplunknSGsStack.Outputs.ThreatAlertSN2
 
 
 Conditions:

@@ -170,10 +170,10 @@ Resources:
     Properties:
       ImageId: !Ref BastionImage
       InstanceType: !Ref BastionType
-      SsmAssociations: 
-        -
-          DocumentName: 
-            Ref: "ThreatAlertSSMDoc"
+      # SsmAssociations: 
+      #   -
+      #     DocumentName: 
+      #       Ref: "ThreatAlertSSMDoc"
       KeyName: !Ref 'KeyNameN'
       # UserData: 
       #   FN::Base64: !sub
@@ -191,6 +191,9 @@ Resources:
             Ref: 'ThreatAlertSN1'
       IamInstanceProfile: !Ref 'ThreatAlertHostProfile'
       BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            Encrypted: True         
         - DeviceName: /dev/xvda
           Ebs:
             Encrypted: True
@@ -200,9 +203,9 @@ Resources:
           Value: Bastion-Server
         - Key: Classification
           Value: !Ref 'FedClassification'
-    DependsOn: 
-      - ThreatAlertDirectory
-      - ThreatAlertSSMDoc
+    # DependsOn: 
+    #   - ThreatAlertDirectory
+    #   - ThreatAlertSSMDoc
 
   ThreatAlertInternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -230,7 +233,7 @@ Resources:
           Value: threatAlert-subnet-01
     DependsOn: ThreatAlertVPC
 
-  ThreatAlertSubnetSelection:
+  ThreatAlertSN2:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref 'ThreatAlertVPC'
@@ -286,7 +289,7 @@ Resources:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: !Ref 'threatAlertPrivateRT'
-      SubnetId: !Ref 'ThreatAlertSubnetSelection'
+      SubnetId: !Ref 'ThreatAlertSN2'
 
   DBISubnet1:
     Type: AWS::EC2::Subnet
@@ -419,19 +422,19 @@ Resources:
         - Ref: DirectorySubnet2
    
 
-  ThreatAlertSSMDoc:
-    Type: AWS::SSM::Document
-    Properties:
-      Content:
-        schemaVersion: '1.2'
-        description: Join instances to an AWS Directory Service Domain
-        runtimeConfig:
-          aws:domainJoin:
-            properties:
-              directoryId: !Ref 'ThreatAlertDirectory'
-              directoryName: !Ref 'DomainDNSName'
-              dnsIpAddresses:  !GetAtt ThreatAlertDirectory.DnsIpAddresses
-    DependsOn: ThreatAlertDirectory
+  # ThreatAlertSSMDoc:
+  #   Type: AWS::SSM::Document
+  #   Properties:
+  #     Content:
+  #       schemaVersion: '1.2'
+  #       description: Join instances to an AWS Directory Service Domain
+  #       runtimeConfig:
+  #         aws:domainJoin:
+  #           properties:
+  #             directoryId: !Ref 'ThreatAlertDirectory'
+  #             directoryName: !Ref 'DomainDNSName'
+  #             dnsIpAddresses:  !GetAtt ThreatAlertDirectory.DnsIpAddresses
+  #   DependsOn: ThreatAlertDirectory
   
   ThreatAlertEIPForNatGateway:
     Type: AWS::EC2::EIP
@@ -794,6 +797,11 @@ Resources:
         - Key: Classification
           Value: !Ref 'FedClassification'
       SubnetId: !Ref 'ThreatAlertSN1'
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            Encrypted: True            
+
 
   ThreatAlertEC2Role:
     Type: AWS::IAM::Role
@@ -973,16 +981,19 @@ Resources:
     Properties:
       ImageId: !Ref 'ThreatImage'
       InstanceType: !Ref 'ThreatType'
-      SsmAssociations: 
-        -
-          DocumentName: 
-            Ref: "ThreatAlertSSMDoc" 
+      # SsmAssociations: 
+      #   -
+      #     DocumentName: 
+      #       Ref: "ThreatAlertSSMDoc" 
       KeyName: !Ref 'KeyNameN'
       IamInstanceProfile: !Ref 'ThreatAlertGSSInstanceProfile'
       SecurityGroupIds:
         - !Ref 'ThreatAlertSG'
-      SubnetId: !Ref 'DBISubnet1'
+      SubnetId: !Ref 'ThreatAlertSN1'
       BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            Encrypted: True              
         - DeviceName: /dev/xvda
           Ebs:
             Encrypted: True
@@ -992,7 +1003,7 @@ Resources:
           Value: ThreatAlert-Server
         - Key: Classification
           Value: !Ref 'FedClassification'
-    DependsOn: ThreatAlertSSMDoc
+    # DependsOn: ThreatAlertSSMDoc
       
 
 
@@ -1252,8 +1263,8 @@ Outputs:
     Value: !Ref JiraSG
   AcunetixSG:
     Value: !Ref AcunetixSG  
-  ThreatAlertSubnetSelection:
-    Value: !Ref ThreatAlertSubnetSelection
+  ThreatAlertSN2:
+    Value: !Ref ThreatAlertSN2
   ThreatAlertGSSProfile:
     Value: !Ref ThreatAlertGSSProfile
   ThreatAlertVPC:
