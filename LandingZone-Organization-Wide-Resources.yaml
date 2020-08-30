@@ -1,0 +1,161 @@
+Parameters:
+  AZ1CIDR:
+    Type: String 
+  AZ2CIDR:
+    Type: String
+Mappings:    
+  AccountIDs:
+    "345246214355":
+      "VPCCIDR": "10.0.0.0/16"
+      "Name": "TESTINGONLY-FSA-NGDC-Master-Payer"
+    "345427105863":
+      "VPCCIDR": "10.113.0.0/17"
+      "Name": "FTI-DEV"
+    "345917055031":
+      "VPCCIDR": "10.113.176.0/21"
+      "Name": "FTI-MGMT-UTIL"
+    "345448423986":
+      "VPCCIDR": "10.113.128.0/19"
+      "Name": "FTI-Calc-Production"
+    "363864394796":
+      "VPCCIDR": "10.113.128.0/19"
+      "Name": "FTI-TEST"
+    "345421022322":
+      "VPCCIDR": "10.113.160.0/21"
+      "Name": "FTI-IA"
+    "363669348863":
+      "VPCCIDR": "10.113.176.0/21"
+      "Name": "FTI-STAGE"
+    "345548220375":
+      "VPCCIDR": "10.113.168.0/21"
+      "Name": "FTI-LogArchive"
+Resources:
+  DHCPOptions:
+    Type: AWS::EC2::DHCPOptions
+    Properties: 
+      DomainName: domain.com
+      DomainNameServers: 
+        - 10.10.10.10
+      NtpServers: 
+        - 10.20.20.20
+      Tags: 
+        - Key: Name
+          Value: FSA-FTI-DHCP
+  LandingZoneVPC:
+    DependsOn: DHCPOptions
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !FindInMap [ AccountIDs, !Ref "AWS::AccountId", VPCCIDR ]
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Sub
+            - ${AccountName}-LandingZone-VPC
+            - { AccountName: !FindInMap [ AccountIDs, !Ref "AWS::AccountId", Name ]}
+  Ipv6VPCCidrBlock:
+   Type: AWS::EC2::VPCCidrBlock
+   Properties:
+      AmazonProvidedIpv6CidrBlock: true
+      VpcId: !Ref LandingZoneVPC
+  DHCPAssociation:
+    Type: AWS::EC2::VPCDHCPOptionsAssociation
+    Properties: 
+      DhcpOptionsId: !Ref DHCPOptions
+      VpcId: !Ref LandingZoneVPC
+  PresAZ1Subnet:
+    DependsOn: Ipv6VPCCidrBlock
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref LandingZoneVPC
+      CidrBlock: !Select [ 0, !Cidr [ !Ref AZ1CIDR, 3, 6 ]]
+      Ipv6CidrBlock: !Select [ 0, !Cidr [ !Select [ 0, !GetAtt LandingZoneVPC.Ipv6CidrBlocks], 6, 64 ]]
+      AvailabilityZone: 
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: !Ref 'AWS::Region'
+      Tags:
+        - Key: Name
+          Value: !Sub
+            - ${AccountName}-Pres-Subnet-AZ1
+            - { AccountName: !FindInMap [ AccountIDs, !Ref "AWS::AccountId", Name ]}
+  AppAZ1Subnet:
+    DependsOn: Ipv6VPCCidrBlock
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref LandingZoneVPC
+      CidrBlock: !Select [ 1, !Cidr [ !Ref AZ1CIDR, 3, 6 ]]
+      Ipv6CidrBlock: !Select [ 1, !Cidr [ !Select [ 0, !GetAtt LandingZoneVPC.Ipv6CidrBlocks], 6, 64 ]]
+      AvailabilityZone: 
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: !Ref 'AWS::Region'
+      Tags:
+        - Key: Name
+          Value: !Sub
+            - ${AccountName}-App-Subnet-AZ1
+            - { AccountName: !FindInMap [ AccountIDs, !Ref "AWS::AccountId", Name ]}
+  DBAZ1Subnet:
+    DependsOn: Ipv6VPCCidrBlock
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref LandingZoneVPC
+      CidrBlock: !Select [ 2, !Cidr [ !Ref AZ1CIDR, 3, 6 ]]
+      Ipv6CidrBlock: !Select [ 2, !Cidr [ !Select [ 0, !GetAtt LandingZoneVPC.Ipv6CidrBlocks], 6, 64 ]]
+      AvailabilityZone: 
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: !Ref 'AWS::Region'
+      Tags:
+        - Key: Name
+          Value: !Sub
+            - ${AccountName}-DB-Subnet-AZ1 
+            - { AccountName: !FindInMap [ AccountIDs, !Ref "AWS::AccountId", Name ]}
+  PresAZ2Subnet:
+    DependsOn: Ipv6VPCCidrBlock
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref LandingZoneVPC
+      CidrBlock: !Select [ 0, !Cidr [ !Ref AZ2CIDR, 3, 6 ]]
+      Ipv6CidrBlock: !Select [ 3, !Cidr [ !Select [ 0, !GetAtt LandingZoneVPC.Ipv6CidrBlocks], 6, 64 ]]
+      AvailabilityZone: 
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: !Ref 'AWS::Region'
+      Tags:
+        - Key: Name
+          Value: !Sub
+            - ${AccountName}-Pres-Subnet-AZ2
+            - { AccountName: !FindInMap [ AccountIDs, !Ref "AWS::AccountId", Name ]}
+  AppAZ2Subnet:
+    DependsOn: Ipv6VPCCidrBlock
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref LandingZoneVPC
+      CidrBlock: !Select [ 1, !Cidr [ !Ref AZ2CIDR, 3, 6 ]]
+      Ipv6CidrBlock: !Select [ 4, !Cidr [ !Select [ 0, !GetAtt LandingZoneVPC.Ipv6CidrBlocks], 6, 64 ]]
+      AvailabilityZone: 
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: !Ref 'AWS::Region'
+      Tags:
+        - Key: Name
+          Value: !Sub
+            - ${AccountName}-App-Subnet-AZ2
+            - { AccountName: !FindInMap [ AccountIDs, !Ref "AWS::AccountId", Name ]}
+  DBAZ2Subnet:
+    DependsOn: Ipv6VPCCidrBlock
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref LandingZoneVPC
+      CidrBlock: !Select [ 2, !Cidr [ !Ref AZ2CIDR, 3, 6 ]]
+      Ipv6CidrBlock: !Select [ 5, !Cidr [ !Select [ 0, !GetAtt LandingZoneVPC.Ipv6CidrBlocks], 6, 64 ]]
+      AvailabilityZone: 
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: !Ref 'AWS::Region'
+      Tags:
+        - Key: Name
+          Value: !Sub
+            - ${AccountName}-DB-Subnet-AZ2 
+            - { AccountName: !FindInMap [ AccountIDs, !Ref "AWS::AccountId", Name ]}
