@@ -1,0 +1,81 @@
+Parameters:
+    Project: 
+      Type: String
+      Default: fti-fsa  #must be same across all templates
+    RepoBranch: 
+      Type: String
+      Default: source  # must manually create branch
+Resources:  
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      ArtifactStore:
+        Location: !Sub ${AWS::AccountId}-${Project}-pipeline-artifacts-${AWS::Region}
+        Type: "S3"
+        EncryptionKey:
+          Id:
+            Fn::ImportValue:
+              !Sub "${Project}-KMSKeyArn"
+          Type: KMS
+      RoleArn:
+        Fn::ImportValue:
+          !Sub "${Project}-PipeLineRoleArn"
+      Name: !Sub ${Project}-Pipeline
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: App
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: '1'
+                Provider: CodeCommit
+              Configuration:
+                RepositoryName: !Sub ${Project}-ProjectRepo
+                BranchName: !Ref RepoBranch
+              OutputArtifacts:
+                - Name: SourceArtifact
+              RunOrder: 1
+        - Name: "CFN_Lint"
+          Actions:
+            - Name: CodeBuild
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: '1'
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Sub ${Project}-BuildProject
+              InputArtifacts:
+                - Name: SourceArtifact
+              OutputArtifacts:
+                - Name: BuildArtifact
+              RunOrder: 1
+        - Name: Deploy_To_Test  #duplicate this stage for each account --change the parameter and environment string in both RoleArn
+          Actions:
+            - Name: Launch-CFN
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: '1'
+                Provider: CloudFormation
+              Configuration:
+                ChangeSetName: cicd-codepipeline-ChangeSet-Dev
+                ActionMode: CREATE_UPDATE
+                StackName: fti-fsa-organization
+                Capabilities: CAPABILITY_IAM,CAPABILITY_NAMED_IAM
+                ParameterOverrides: |
+                  {
+                    "AZ1CIDR": "10.113.128.0/20",
+                    "AZ2CIDR": "10.113.144.0/20"
+                  }
+                TemplatePath: BuildArtifact::fsa-fti-organization.yaml
+                RoleArn:
+                  Fn::ImportValue:
+                    !Sub "${Project}-Test-cloudformationdeployer-role"  #role used by child account to run cloudformation --trust relationship with cloudformation
+              InputArtifacts:
+                - Name: BuildArtifact
+              RunOrder: 1
+              RoleArn:
+                Fn::ImportValue:
+                  !Sub "${Project}-Test-centralacctcodepipelineCFRole" #role used by codepipeline to access child account --trust relationship is with master account
