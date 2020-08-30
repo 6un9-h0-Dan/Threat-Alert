@@ -149,7 +149,7 @@ Resources:
               - !Sub arn:${AWS::Partition}:s3:::${ArtifactBucket}
               - !Sub arn:${AWS::Partition}:s3:::${ArtifactBucket}/*
             Principal:
-              AWS:
+              AWS: # make sure there are one of each of two different roles for each account
                 - !Sub arn:${AWS::Partition}:iam::${LoggingAccount}:role/${Project}-CentralAcctCodePipelineCFRole
                 - !Sub arn:${AWS::Partition}:iam::${LoggingAccount}:role/${Project}-cloudformationdeployer-role              
                 - !Sub arn:${AWS::Partition}:iam::${IAAccount}:role/${Project}-CentralAcctCodePipelineCFRole
@@ -293,7 +293,7 @@ Resources:
             Effect: Allow
             Action:
               - sts:AssumeRole
-            Resource:
+            Resource: #make sure there is a role for each childaccount
               - !Sub arn:${AWS::Partition}:iam::${ProductionAccount}:role/${Project}-CentralAcctCodePipelineCFRole
               - !Sub arn:${AWS::Partition}:iam::${TestAccount}:role/${Project}-CentralAcctCodePipelineCFRole
               - !Sub arn:${AWS::Partition}:iam::${DevAccount}:role/${Project}-CentralAcctCodePipelineCFRole
@@ -327,7 +327,7 @@ Resources:
             Value: !Ref ArtifactBucket
       Source:
         Type: CODEPIPELINE
-Outputs:
+Outputs: #make sure there is an output for each role foreach account.Make sure to update the account string in the name and make note of it.
   ArtifactBucket:
     Value: !Sub ${AWS::AccountId}-${Project}-pipeline-artifacts-${AWS::Region}
     Export:
